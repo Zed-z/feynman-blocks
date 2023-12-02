@@ -48,6 +48,8 @@
 		"set": "cpp",
 		"vector": "cpp",
 		"xtree": "cpp",
-		"source_location": "cpp"
+		"source_location": "cpp",
+		"feynman_particle.h": "c",
+		"feynman_block.h": "c"
 	}
 }

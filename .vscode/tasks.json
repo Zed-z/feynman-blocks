@@ -7,9 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${fileDirname}\\**.cpp",
+                "${fileDirname}\\**.c",
                 //"${fileDirname}\\**.h",
-                "${fileDirname}\\source\\**.cpp",
+                "${fileDirname}\\source\\**.c",
                 //"${fileDirname}\\include\\**.h",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"

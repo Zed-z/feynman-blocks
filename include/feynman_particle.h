@@ -3,25 +3,20 @@
 #define FEYNMAN_PARTICLE_H
 
 
-#include <string>
-#include <iostream>
+#define MAX_FPART_AMOUNT 256
+#define MAX_FPART_TYPE_AMOUNT 10
 
-class FeynmanParticle {
-	private:
-		static int id_queue;
+extern char* fparticle_types[MAX_FPART_TYPE_AMOUNT];
 
-	public:
-		int id;		// Unique particle id
-		int type;	// Particle type specified by blocks
-		std::string name;		// Particle name for ease of use
-
-		int source;	// Particle source; -1 if it's an initial particle, block id if made by a block
-
-		friend std::ostream& operator << (std::ostream &os, const FeynmanParticle &particle);
-
-		FeynmanParticle(int type, std::string name, int source);
-
+struct FPart {
+	int id;
+	int type;
+	int source;
 };
+
+void print_fpart(struct FPart fpart);
+
+struct FPart new_FPart(int type, int source);
 
 
 #endif
