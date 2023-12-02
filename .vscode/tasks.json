@@ -2,22 +2,31 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: g++.exe build active file",
-            "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
+            "label": "Compile and run idk",
+            "command": "gcc",
             "args": [
                 "-fdiagnostics-color=always",
+
                 "-g",
                 "${fileDirname}\\**.c",
                 "${fileDirname}\\source\\**.c",
-                //"-I", "lib",
-                //"-L","-l:lib\\libjansson-4.dll","-Wall",
-                "-I", "\"C:\\msys64\\usr\\include\"",
-                "-L", "-l:\"C:\\msys64\\usr\\bin\\msys-jansson-4.dll\"",
+
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+
+                //"-I/mingw64/include",
+                //"-L/mingw64/lib",
+                //"-L/C/msys64/usr/bin",
+                //"-lmsys-jansson-4.dll"
+                //"-I", "${fileDirname}\\lib",
+                //"-L", "${fileDirname}\\lib",
+                //"-llibjansson-4"
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${fileDirname}",
+                "env": {
+                    "PATH": "${env:PATH};C:\\msys64\\usr\\bin"
+                }
             },
             "problemMatcher": [
                 "$gcc"

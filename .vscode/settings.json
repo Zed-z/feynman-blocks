@@ -51,6 +51,8 @@
 		"source_location": "cpp",
 		"feynman_particle.h": "c",
 		"feynman_block.h": "c",
-		"jansson_config.h": "c"
+		"jansson_config.h": "c",
+		"functions.h": "c",
+		"jansson.h": "c"
 	}
 }
