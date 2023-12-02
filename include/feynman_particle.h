@@ -9,9 +9,9 @@
 extern char* fparticle_types[MAX_FPART_TYPE_AMOUNT];
 
 struct FPart {
-	int id;
-	int type;
-	int source;
+	int id;		// Unique ID
+	int type;	// Type of particle
+	int source;	// Source: ID of origin block, -1 if initial
 };
 
 void print_fpart(struct FPart fpart);
