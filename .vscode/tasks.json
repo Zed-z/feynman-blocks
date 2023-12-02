@@ -10,6 +10,7 @@
                 "${fileDirname}\\**.c",
                 //"${fileDirname}\\**.h",
                 "${fileDirname}\\source\\**.c",
+                //"${fileDirname}\\jansson\\**.c",
                 //"${fileDirname}\\include\\**.h",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
