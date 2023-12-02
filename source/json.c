@@ -41,27 +41,27 @@ int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], i
         int count = json_integer_value(json_array_get(block, 1));
 
 		// Type id and cost
-		int type = json_integer_value(json_array_get(block, 2));
-        int cost = json_integer_value(json_array_get(block, 3));
+        int cost = json_integer_value(json_array_get(block, 2));
 
 		// Inputs and outputs
-		json_t *input_json = json_array_get(block, 4);
+		json_t *input_json = json_array_get(block, 3);
 			size_t input_size = json_array_size(input_json);
 			int *input = malloc(input_size * sizeof(int));
 			for (size_t j = 0; j < input_size; j++) {
 				input[j] = json_integer_value(json_array_get(input_json, j));
 			}
-        json_t *output_json = json_array_get(block, 5);
+        json_t *output_json = json_array_get(block, 4);
 			size_t output_size = json_array_size(output_json);
 			int *output = malloc(output_size * sizeof(int));
 			for (size_t j = 0; j < output_size; j++) {
 				output[j] = json_integer_value(json_array_get(output_json, j));
 			}
 
-		fblock_types[fblock_type_iter++] = (char*)name;
+		fblock_types[fblock_type_iter] = (char*)name;
 		for (int i = 0; i < count; i++) {
-			fblock_list[(*fblock_list_length)++] = new_FBlock(type, cost, input, output);
+			fblock_list[(*fblock_list_length)++] = new_FBlock(fblock_type_iter, cost, input, output);
 		}
+		fblock_type_iter++;
 
 		// Cleanup
 		free(input);

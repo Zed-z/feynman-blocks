@@ -1,8 +1,8 @@
 {
     "tasks": [
         {
-            "type": "cppbuild",
             "label": "build",
+            "type": "cppbuild",
             "command": "gcc",
             "args": [
                 "-fdiagnostics-color=always",
