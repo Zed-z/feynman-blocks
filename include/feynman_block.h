@@ -11,6 +11,7 @@
 #include "feynman_particle.h"
 
 extern char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT];
+extern int fblock_type_iter;
 
 struct FBlock {
 	int id;			// Unique block id

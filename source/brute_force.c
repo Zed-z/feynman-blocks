@@ -30,14 +30,32 @@ int usepermutation(
 
 	//print_fpart_all(particle_array_copy, fpart_list_length_copy);
 
+	/*
 	if (fpart_list_length_copy != desired_output_length) return 0;
 	for (int i = 0; i < fpart_list_length_copy; i++) {
 		if (particle_array_copy[i].type != desired_output[i]) return 0;
 	}
+	*/
+	int *particle_counts = (int*)malloc(sizeof(int) * desired_output_length);
+	for (int i = 0; i < desired_output_length; i++) particle_counts[i] = 0;
+
+	for (int i = 0; i < fpart_list_length_copy; i++) {
+		particle_counts[particle_array_copy[i].type]++;
+	}
+
+	for (int i = 0; i < desired_output_length; i++) {
+		printf("%d %d\n", particle_counts[i], desired_output[i]);
+		if (particle_counts[i] != desired_output[i]) {
+			free(particle_counts);
+			return 0;
+		}
+	}
+	free(particle_counts);
+
 	print_fpart_all(particle_array_copy, fpart_list_length_copy);
 	return 1;
 
-	//free(particle_array_copy);
+	free(particle_array_copy);
 }
 
 
