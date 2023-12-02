@@ -8,24 +8,23 @@
 
 class FeynmanBlock {
 	private:
-		static unsigned int id_queue;
+		static int id_queue;
 
 	public:
-		unsigned int id;					// Unique block id
-		unsigned int type;					// Block type identifier
+		int id;					// Unique block id
+		int type;					// Block type identifier
 		std::string name;					// Block type name
-		unsigned int cost;					// Block usage cost; can be interpreted as time or energy
+		int cost;					// Block usage cost; can be interpreted as time or energy
 
-		std::vector <unsigned int> input;	// Required input particles (type)
-		std::vector <unsigned int> output;	// Output particles (type)
+		std::vector <int> input;	// Required input particles (type)
+		std::vector <int> output;	// Output particles (type)
 
-		FeynmanBlock(int type, std::string name, unsigned int cost);
-		FeynmanBlock(int type, std::string name, unsigned int cost, std::vector <unsigned int> input, std::vector <unsigned int> output);
-		FeynmanBlock(const FeynmanBlock& fb);
-		~FeynmanBlock();
+		friend std::ostream& operator << (std::ostream &os, const FeynmanBlock &block);
+
+		FeynmanBlock(int type, std::string name, int cost, std::vector <int> input, std::vector <int> output);
+
+		void simulate();
 
 };
-
-extern std::vector <FeynmanBlock*> FeynmanBlockList;
 
 #endif

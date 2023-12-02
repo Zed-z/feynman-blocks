@@ -4,24 +4,24 @@
 
 
 #include <string>
+#include <iostream>
 
 class FeynmanParticle {
 	private:
-		static unsigned int id_queue;
+		static int id_queue;
 
 	public:
-		unsigned int id;		// Unique particle id
-		unsigned int type;	// Particle type specified by blocks
+		int id;		// Unique particle id
+		int type;	// Particle type specified by blocks
 		std::string name;		// Particle name for ease of use
 
-		unsigned int source;	// Particle source; -1 if it's an initial particle, block id if made by a block
+		int source;	// Particle source; -1 if it's an initial particle, block id if made by a block
 
-		FeynmanParticle(int type, std::string name, unsigned int source);
-		FeynmanParticle(const FeynmanParticle& fb);
-		~FeynmanParticle();
+		friend std::ostream& operator << (std::ostream &os, const FeynmanParticle &particle);
+
+		FeynmanParticle(int type, std::string name, int source);
+
 };
-
-extern std::vector <FeynmanParticle*> FeynmanParticleList;
 
 
 #endif

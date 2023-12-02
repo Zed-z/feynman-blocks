@@ -1,25 +1,13 @@
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 #include "../include/feynman_block.h"
 
-std::vector <FeynmanBlock*> FeynmanBlockList;
-unsigned int FeynmanBlock::id_queue = 0;
+int FeynmanBlock::id_queue = 0;
 
-FeynmanBlock::FeynmanBlock(int type, std::string name, unsigned int cost) {
-
-	this->id = this->id_queue;
-	this->id_queue++;
-
-	this->type = type;
-	this->name = name;
-	this->cost = cost;
-
-	FeynmanBlockList.push_back(this);
-
-}
-
-FeynmanBlock::FeynmanBlock(int type, std::string name, unsigned int cost, std::vector <unsigned int> input, std::vector <unsigned int> output) {
+FeynmanBlock::FeynmanBlock(int type, std::string name, int cost, std::vector <int> input, std::vector <int> output) {
 
 	this->id = this->id_queue;
 	this->id_queue++;
@@ -35,14 +23,24 @@ FeynmanBlock::FeynmanBlock(int type, std::string name, unsigned int cost, std::v
 		this->output.push_back(*o);
 	}
 
-	FeynmanBlockList.push_back(this);
-
 }
 
-FeynmanBlock::FeynmanBlock(const FeynmanBlock& fb) {
-	FeynmanBlockList.push_back(this);
+std::ostream& operator << (std::ostream& os, const FeynmanBlock& block) {
+
+	std::string inp = "";
+	for (auto i = block.input.begin(); i != block.input.end(); i++) {
+		inp += std::to_string(*i) + " ";
+	}
+
+	std::string out = "";
+	for (auto i = block.output.begin(); i != block.output.end(); i++) {
+		out += std::to_string(*i) + " ";
+	}
+
+	os << "[Block: " << block.id << ", name: " << block.name << ", cost: " << block.cost << ", input: <" << inp << ">, output: <" << out<< ">]";
+	return os;
 }
 
-FeynmanBlock::~FeynmanBlock() {
-	FeynmanBlockList.erase(std::remove(FeynmanBlockList.begin(), FeynmanBlockList.end(), this), FeynmanBlockList.end());
+void FeynmanBlock::simulate() {
+	std::cout << "HELLO";
 }

@@ -1,12 +1,14 @@
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 #include "../include/feynman_particle.h"
 
-std::vector <FeynmanParticle*> FeynmanParticleList;
-unsigned int FeynmanParticle::id_queue = 0;
 
-FeynmanParticle::FeynmanParticle(int type, std::string name, unsigned int source) {
+int FeynmanParticle::id_queue = 0;
+
+FeynmanParticle::FeynmanParticle(int type, std::string name, int source) {
 
 	this->id = this->id_queue;
 	this->id_queue++;
@@ -15,14 +17,9 @@ FeynmanParticle::FeynmanParticle(int type, std::string name, unsigned int source
 	this->name = name;
 	this->source = source;
 
-	FeynmanParticleList.push_back(this);
-
 }
 
-FeynmanParticle::FeynmanParticle(const FeynmanParticle& fb) {
-	FeynmanParticleList.push_back(this);
-}
-
-FeynmanParticle::~FeynmanParticle() {
-	FeynmanParticleList.erase(std::remove(FeynmanParticleList.begin(), FeynmanParticleList.end(), this), FeynmanParticleList.end());
+std::ostream& operator << (std::ostream& os, const FeynmanParticle& particle) {
+	os << "[Particle: " << particle.id << ", type: " << particle.type << ", name: " << particle.name << ", source: " << particle.source << "]";
+	return os;
 }
