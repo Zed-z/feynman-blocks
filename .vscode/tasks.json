@@ -2,28 +2,26 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "Compile and run idk",
+            "label": "build",
             "command": "gcc",
             "args": [
                 "-fdiagnostics-color=always",
 
                 "-g",
-                "${fileDirname}\\**.c",
-                "${fileDirname}\\source\\**.c",
+                "${workspaceFolder}\\**.c",
+                "${workspaceFolder}\\source\\**.c",
 
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${workspaceFolder}\\main.exe",
 
-                //"-I/mingw64/include",
-                //"-L/mingw64/lib",
-                //"-L/C/msys64/usr/bin",
-                //"-lmsys-jansson-4.dll"
-                //"-I", "${fileDirname}\\lib",
-                //"-L", "${fileDirname}\\lib",
-                //"-llibjansson-4"
+                "-IC:/msys64/mingw64/bin/../include",
+                "-LC:/msys64/mingw64/bin/../lib",
+                "-ljansson",
+
+                "-DDEBUG"
             ],
             "options": {
-                "cwd": "${fileDirname}",
+                "cwd": "${workspaceFolder}",
                 "env": {
                     "PATH": "${env:PATH};C:\\msys64\\usr\\bin"
                 }

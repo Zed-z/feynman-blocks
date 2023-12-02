@@ -1,13 +1,15 @@
 #include "../include/json.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <jansson.h>
 
 #include "../include/feynman_block.h"
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
 
-int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int *fblock_list_length, struct FPart fpart_list[MAX_FPART_AMOUNT], int *fpart_list_length) {
+int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int *fblock_list_length, struct FPart fpart_list[MAX_FPART_AMOUNT], int *fpart_list_length, const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT]) {
 
     // Setup
     json_error_t error;
@@ -33,13 +35,37 @@ int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], i
     for (size_t i = 0; i < block_array_length; i++) {
         json_t *block = json_array_get(block_array, i);
 
-		int type = json_integer_value(json_array_get(block, 0));
-        int cost = json_integer_value(json_array_get(block, 1));
+		// Name and count
+		const char *name_json = json_string_value(json_array_get(block, 0));
+		const char *name = strdup(name_json);
+        int count = json_integer_value(json_array_get(block, 1));
 
-		json_t *input = json_array_get(block, 2);
-        json_t *output = json_array_get(block, 3);
+		// Type id and cost
+		int type = json_integer_value(json_array_get(block, 2));
+        int cost = json_integer_value(json_array_get(block, 3));
 
-		fblock_list[(*fblock_list_length)++] = new_FBlock(type, cost, (int*)input, (int*)output);
+		// Inputs and outputs
+		json_t *input_json = json_array_get(block, 4);
+			size_t input_size = json_array_size(input_json);
+			int *input = malloc(input_size * sizeof(int));
+			for (size_t j = 0; j < input_size; j++) {
+				input[j] = json_integer_value(json_array_get(input_json, j));
+			}
+        json_t *output_json = json_array_get(block, 5);
+			size_t output_size = json_array_size(output_json);
+			int *output = malloc(output_size * sizeof(int));
+			for (size_t j = 0; j < output_size; j++) {
+				output[j] = json_integer_value(json_array_get(output_json, j));
+			}
+
+		fblock_types[fblock_type_iter++] = (char*)name;
+		for (int i = 0; i < count; i++) {
+			fblock_list[(*fblock_list_length)++] = new_FBlock(type, cost, input, output);
+		}
+
+		// Cleanup
+		free(input);
+        free(output);
     }
 
 

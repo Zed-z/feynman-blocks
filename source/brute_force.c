@@ -28,7 +28,7 @@ int usepermutation(
 		use_fblock(particle_array_copy, &fpart_list_length_copy, &energy_copy, &(fblock_list[steps[i]]), 0, 1);
 	}
 
-	//print_fpart_all(particle_array_copy, fpart_list_length_copy);
+	print_fpart_all(particle_array_copy, fpart_list_length_copy);
 
 	/*
 	if (fpart_list_length_copy != desired_output_length) return 0;

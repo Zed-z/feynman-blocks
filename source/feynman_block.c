@@ -3,7 +3,8 @@
 
 #include "../include/feynman_block.h"
 
-char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT] = {0};
+const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT] = {0};
+int fblock_type_iter = 0;
 
 void print_fblock(struct FBlock fblock, char* fpart_types[]) {
 	printf("<FBlock %d> %s (cost: %d) ", fblock.id, fblock_types[fblock.type], fblock.cost);

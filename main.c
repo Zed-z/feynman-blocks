@@ -24,6 +24,12 @@ int process_id = 0;
 
 int main(int argc, char *argv[]) {
 
+	// Default args for debugging
+	#ifdef DEBUG
+	argc = 2;
+	argv[1] = "{\"particles\":[0,0,0,0,1,1,1,1,2,2,2,2],\"blocks\":[[\"ee->pp\",1,0,10,[0,0,-1,-1],[2,2,-1,-1]],[\"qq->\",1,1,20,[1,1,-1,-1],[-1,-1,-1,-1]],[\"p->qe\",1,2,30,[2,-1,-1,-1],[1,0,-1,-1]],[\"eq->p\",1,3,15,[0,1,-1,-1],[2,-1,-1,-1]]]}";
+	#endif
+
 	// Feynman particle type names
 	#define P_E 0
 	#define P_Q 1
@@ -33,53 +39,49 @@ int main(int argc, char *argv[]) {
 	fparticle_types[P_Q] = (char*)"q";
 	fparticle_types[P_P] = (char*)"p";
 
-
-	// Block 1: turn 2 electrons into a proton
-	/*fblock_types[fblock_type_iter] = (char*)"ee->pp";
-	for (int i = 0; i < 2; i++) {
-		int in[] = {P_E, P_E, -1, -1}; int out[] = {P_P, P_P, -1, -1};
-		fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 10, in, out);
-	}
-	fblock_type_iter++;
-
-	fblock_types[fblock_type_iter] = (char*)"qq->💥";
-	for (int i = 0; i < 1; i++) {
-		int in[] = {P_Q, P_Q, -1, -1}; int out[] = {-1, -1, -1, -1};
-		fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 20, in, out);
-	}
-	fblock_type_iter++;
-
-	fblock_types[fblock_type_iter] = (char*)"p->qe";
-	for (int i = 0; i < 2; i++) {
-		int in[] = {P_P, -1, -1, -1}; int out[] = {P_Q, P_E, -1, -1};
-		fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 30, in, out);
-	}
-	fblock_type_iter++;
-
-	fblock_types[fblock_type_iter] = (char*)"eq->p";
-	for (int i = 0; i < 2; i++) {
-		int in[] = {P_E, P_Q, -1, -1}; int out[] = {P_P, -1, -1, -1};
-		fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 15, in, out);
-	}
-	fblock_type_iter++;*/
-
 	// Particles
 	if (argc > 1) {
 		printf("h %s\n\n",argv[1]);
-		if (json_load(argv[1], fblock_list, &fblock_list_length, fpart_list, &fpart_list_length) == 1) return 1;
+		if (json_load(argv[1], fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
 	} else {
-		if (json_load("{\"particles\":[0, 1, 1, 2, 0, 1]}", fblock_list, &fblock_list_length, fpart_list, &fpart_list_length) == 1) return 1;
+		// Block 1: turn 2 electrons into a proton
+		fblock_types[fblock_type_iter] = (char*)"ee->pp";
+		for (int i = 0; i < 2; i++) {
+			int in[] = {P_E, P_E, -1, -1}; int out[] = {P_P, P_P, -1, -1};
+			fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 10, in, out);
+		}
+		fblock_type_iter++;
+
+		fblock_types[fblock_type_iter] = (char*)"qq->💥";
+		for (int i = 0; i < 1; i++) {
+			int in[] = {P_Q, P_Q, -1, -1}; int out[] = {-1, -1, -1, -1};
+			fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 20, in, out);
+		}
+		fblock_type_iter++;
+
+		fblock_types[fblock_type_iter] = (char*)"p->qe";
+		for (int i = 0; i < 2; i++) {
+			int in[] = {P_P, -1, -1, -1}; int out[] = {P_Q, P_E, -1, -1};
+			fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 30, in, out);
+		}
+		fblock_type_iter++;
+
+		fblock_types[fblock_type_iter] = (char*)"eq->p";
+		for (int i = 0; i < 2; i++) {
+			int in[] = {P_E, P_Q, -1, -1}; int out[] = {P_P, -1, -1, -1};
+			fblock_list[fblock_list_length++] = new_FBlock(fblock_type_iter, 15, in, out);
+		}
+		fblock_type_iter++;
+
+
+		for (int i = 0; i < 10; i++) {
+			int randint = rand() % MAX_FPART_TYPES;
+			fpart_list[fpart_list_length++] = new_FPart(randint, -1);
+		}
 	}
-	
-	/*for (int i = 0; i < 10; i++) {
-		int randint = rand() % MAX_FPART_TYPES;
-		fpart_list[fpart_list_length++] = new_FPart(randint, -1);
-		fpart_list_output[fpart_list_length_output++] = fpart_list[fpart_list_length-1];
-	}*/
 
 	print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
 	print_fpart_all(fpart_list, fpart_list_length);
-	return 0;
 
 	//Random tests
 	/*
