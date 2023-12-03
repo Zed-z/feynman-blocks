@@ -2,7 +2,7 @@
 Requirements:
 - VSCode
 - MinGW MSYS2
-- Packages installed: gcc, pkg-config, mingw-w64-x86_64-jansson
+- Packages installed: gcc, pkg-config, mingw-w64-x86_64-jansson, mingw-w64-x86_64-graphviz
 
 Run the `run.sh` script or press F5
 
@@ -16,5 +16,5 @@ cat example_data.exe | ./run.sh
 
 Visualization example (GraphViz):
 ```
-cat example_data.txt | ./main.exe | python3 scripts/json_to_graphviz.py
+cat example_data.txt | ./main.exe | python3 scripts/json_to_graphviz.py | dot -Tpng > viz.png
 ```

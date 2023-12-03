@@ -3,6 +3,7 @@
 #include "../include/feynman_particle.h"
 
 char* fparticle_types[MAX_FPART_TYPE_AMOUNT] = {0};
+int fparticle_types_length = 0;
 
 void print_fpart(struct FPart fpart) {
 	printf("<%sFPart %d> %s (source: %d)\n", (fpart.deleted == 1 ? "DELETED " : ""), fpart.id, fparticle_types[fpart.type], fpart.source);

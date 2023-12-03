@@ -31,17 +31,13 @@ int main(int argc, char *argv[]) {
 	// Default args for debugging
 	#ifdef DEBUG
 	argc = 2;
-	argv[1] = "{\"particles\":[0,0,0,0,1,1,1,1,2,2,2,2],\"blocks\":[[\"ee->pp\",2,[0,0,-1,-1],[2,2,-1,-1]],[\"qq->\",2,[1,1,-1,-1],[-1,-1,-1,-1]],[\"p->qe\",2,[2,-1,-1,-1],[1,0,-1,-1]],[\"eq->p\",2,[0,1,-1,-1],[2,-1,-1,-1]]]}";
+	argv[1] = "{\"particles\":[[\"e\",4],[\"q\",4],[\"p\",4]],\"blocks\":[[\"ee->pp\",2,[\"e\",\"e\"],[\"p\",\"p\"]],[\"qq->\",2,[\"q\",\"q\"],[]],[\"p->qe\",2,[\"p\"],[\"q\",\"e\"]],[\"eq->p\",2,[\"e\",\"q\"],[\"p\"]]]}";
 	#endif
 
 	// Feynman particle type names
 	#define P_E 0
 	#define P_Q 1
 	#define P_P 2
-	#define MAX_FPART_TYPES 3
-	fparticle_types[P_E] = (char*)"e";
-	fparticle_types[P_Q] = (char*)"q";
-	fparticle_types[P_P] = (char*)"p";
 
 	// Particles
 	#define READ_MAX 1024
@@ -68,6 +64,11 @@ int main(int argc, char *argv[]) {
 
 	// No arguments - random particles
 	} else {
+
+		fparticle_types[fparticle_types_length++] = (char*)"e";
+		fparticle_types[fparticle_types_length++] = (char*)"q";
+		fparticle_types[fparticle_types_length++] = (char*)"p";
+
 		// Block 1: turn 2 electrons into a proton
 		fblock_types[fblock_type_iter] = (char*)"ee->pp";
 		for (int i = 0; i < 2; i++) {
@@ -99,7 +100,7 @@ int main(int argc, char *argv[]) {
 
 
 		for (int i = 0; i < 10; i++) {
-			int randint = rand() % MAX_FPART_TYPES;
+			int randint = rand() % fparticle_types_length;
 			fpart_list[fpart_list_length++] = new_FPart(randint, -1);
 		}
 	}
@@ -131,6 +132,6 @@ int main(int argc, char *argv[]) {
 	//*/
 
 	// Brute Force
-	int desired_output[MAX_FPART_TYPES] = {2, 2, 6};
-	brute_force(fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, MAX_FPART_TYPES);
+	int desired_output[] = {2, 2, 6};
+	brute_force(fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, fparticle_types_length);
 }

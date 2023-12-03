@@ -7,6 +7,7 @@
 #define MAX_FPART_TYPE_AMOUNT 10
 
 extern char* fparticle_types[MAX_FPART_TYPE_AMOUNT];
+extern int fparticle_types_length;
 
 struct FPart {
 	int id;		// Unique ID

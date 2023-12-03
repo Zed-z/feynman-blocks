@@ -9,6 +9,17 @@
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
 
+
+int find_index(const char* target, char* arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(target, arr[i]) == 0) {
+            return i; // Return the index if the value is found
+        }
+    }
+    return -1; // Return -1 if the value is not found
+}
+
+
 int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int *fblock_list_length, struct FPart fpart_list[MAX_FPART_AMOUNT], int *fpart_list_length, const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT]) {
 
     // Setup
@@ -22,9 +33,19 @@ int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], i
     size_t particle_array_length = json_array_size(particle_array);
 
     for (size_t i = 0; i < particle_array_length; i++) {
-        int part = json_integer_value(json_array_get(particle_array, i));
+		json_t *part = json_array_get(particle_array, i);
 
-		fpart_list[(*fpart_list_length)++] = new_FPart(part, -1);
+		// Name and count
+		const char *name_json = json_string_value(json_array_get(part, 0));
+		const char *name = strdup(name_json);
+        int count = json_integer_value(json_array_get(part, 1));
+
+		fparticle_types[fparticle_types_length] = (char*)name;
+		for (int i = 0; i < count; i++) {
+			fpart_list[(*fpart_list_length)++] = new_FPart(fparticle_types_length, -1);
+		}
+		fparticle_types_length++;
+
     }
 
 
@@ -43,15 +64,22 @@ int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], i
 		// Inputs and outputs
 		json_t *input_json = json_array_get(block, 2);
 			size_t input_size = json_array_size(input_json);
-			int *input = malloc(input_size * sizeof(int));
+			int input[FBLOCK_MAX_INPUT];
+			for (int in = 0; in < FBLOCK_MAX_INPUT; in++) input[in] = -1;
+
 			for (size_t j = 0; j < input_size; j++) {
-				input[j] = json_integer_value(json_array_get(input_json, j));
+				const char *input_particle = json_string_value(json_array_get(input_json, j));
+				input[j] = find_index(input_particle, fparticle_types, fparticle_types_length);
 			}
+
         json_t *output_json = json_array_get(block, 3);
 			size_t output_size = json_array_size(output_json);
-			int *output = malloc(output_size * sizeof(int));
+			int output[FBLOCK_MAX_INPUT];
+			for (int out = 0; out < FBLOCK_MAX_OUTPUT; out++) output[out] = -1;
+
 			for (size_t j = 0; j < output_size; j++) {
-				output[j] = json_integer_value(json_array_get(output_json, j));
+				const char *output_particle = json_string_value(json_array_get(output_json, j));
+				output[j] = find_index(output_particle, fparticle_types, fparticle_types_length);
 			}
 
 		fblock_types[fblock_type_iter] = (char*)name;
@@ -59,10 +87,6 @@ int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], i
 			fblock_list[(*fblock_list_length)++] = new_FBlock(fblock_type_iter, input, output);
 		}
 		fblock_type_iter++;
-
-		// Cleanup
-		free(input);
-        free(output);
     }
 
 
