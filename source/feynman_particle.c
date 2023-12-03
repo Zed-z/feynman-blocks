@@ -5,11 +5,11 @@
 char* fparticle_types[MAX_FPART_TYPE_AMOUNT] = {0};
 
 void print_fpart(struct FPart fpart) {
-	printf("<FPart %d> %s (source: %d)\n", fpart.id, fparticle_types[fpart.type], fpart.source);
+	printf("<%sFPart %d> %s (source: %d)\n", (fpart.deleted == 1 ? "DELETED " : ""), fpart.id, fparticle_types[fpart.type], fpart.source);
 }
 
 void print_fpart_json(struct FPart fpart) {
-	printf("{\"id\": %d, \"name\": \"%s\", \"source\": %d}", fpart.id, fparticle_types[fpart.type], fpart.source);
+	printf("{\"id\": %d, \"name\": \"%s\", \"source\": %d, \"deleted\": %d}", fpart.id, fparticle_types[fpart.type], fpart.source, fpart.deleted);
 }
 
 struct FPart new_FPart(int type, int source) {

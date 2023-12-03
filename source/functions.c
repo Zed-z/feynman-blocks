@@ -41,6 +41,10 @@ int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, st
 			if (log > 1) printf("    Have: ");
 			if (log > 1) print_fpart(cur_part);
 
+			// Skip if deleted
+			if (cur_part.deleted == 1) {
+				continue;
+			}
 
 			// Skip if index already in index list
 			int is_already_in_index_list = 0;
@@ -87,18 +91,7 @@ int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, st
 	for (int i = 0; i < input_checks_total; i++) {
 
 		int to_delete = input_indexes[i];
-		if (to_delete < 0 || to_delete >= (*fpart_list_length)) continue;
-
-		for (int di = to_delete; di < (*fpart_list_length); di++) {
-			fpart_list[di] = fpart_list[di + 1];
-		}
-
-		(*fpart_list_length)--;
-		for (int j = 0; j < input_checks_total; j++) {
-			if (input_indexes[j] > to_delete) {
-				input_indexes[j]--; //Move all indexes to the right, 1 to the left
-			}
-		}
+		fpart_list[to_delete].deleted = 1;
 	}
 
 

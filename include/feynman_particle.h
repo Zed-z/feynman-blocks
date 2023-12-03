@@ -12,6 +12,7 @@ struct FPart {
 	int id;		// Unique ID
 	int type;	// Type of particle
 	int source;	// Source: ID of origin block, -1 if initial
+	int deleted;// Whether it's deleted or not (kept for visualization purposes)
 };
 
 void print_fpart(struct FPart fpart);

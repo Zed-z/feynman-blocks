@@ -28,16 +28,22 @@ int usepermutation(
 	}
 
 	for (int i = 0; i < stepsize; i++) {
+		//Reset IO
+		for (int j = 0; j < FBLOCK_MAX_INPUT; j++) {
+			fblock_list[steps[i]].input_id[j] = -1;
+			fblock_list[steps[i]].output_id[j] = -1;
+		}
 		use_fblock(particle_array_copy, &fpart_list_length_copy, &energy_copy, &(fblock_list[steps[i]]), 0, 1);
 	}
 
 	if (LOG) print_fpart_all(particle_array_copy, fpart_list_length_copy);
-
+	if (LOG) print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
 
 	int *particle_counts = (int*)malloc(sizeof(int) * desired_output_length);
 	for (int i = 0; i < desired_output_length; i++) particle_counts[i] = 0;
 
 	for (int i = 0; i < fpart_list_length_copy; i++) {
+		if (particle_array_copy[i].deleted == 1) continue;
 		particle_counts[particle_array_copy[i].type]++;
 	}
 

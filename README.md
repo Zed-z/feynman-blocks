@@ -13,3 +13,8 @@ Example usage:
 ```
 cat example_data.exe | ./run.sh
 ```
+
+Visualization example (GraphViz):
+```
+cat example_data.txt | ./main.exe | python3 scripts/json_to_graphviz.py
+```
