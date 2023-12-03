@@ -61,11 +61,19 @@ int main(int argc, char *argv[]) {
 
 	// Arguments
 	} else if (argc > 2) {
-		if (json_load(argv[2], fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
+
+		if (argv[2][0] == '{') {// Raw json
+			if (json_load(argv[2], fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
+		} else {// Json file
+			FILE *f = fopen(argv[2], "r");
+			fgets(chars_read, READ_MAX, f);
+			close(f);
+			if (json_load(chars_read, fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
+		}
 
 	// No data
 	} else {
-		printf("No input data!]n");
+		printf("No input data!\n");
 		exit(1);
 	}
 
