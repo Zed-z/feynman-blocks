@@ -17,7 +17,12 @@ for line in sys.stdin:
 
 	# Print all particles possible
 	for fp in fparts:
-		print(f"fp{fp['id']} [label=\"{fp['name']}\"]")
+		color = "red" # Deleted fparts
+		if fp['source'] == -1:
+			color = "green" # Initial fparts
+		if fp['deleted'] == 0:
+			color = "blue" # Final fparts
+		print(f"fp{fp['id']} [label=\"{fp['name']}\" style=filled fillcolor={color}]")
 
 	# Print blocks
 	for fb in fblocks:

@@ -17,8 +17,6 @@
                 "-IC:/msys64/mingw64/bin/../include",
                 "-LC:/msys64/mingw64/bin/../lib",
                 "-ljansson",
-
-                "-DDEBUG"
             ],
             "options": {
                 "cwd": "${workspaceFolder}",
