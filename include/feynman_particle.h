@@ -15,6 +15,7 @@ struct FPart {
 };
 
 void print_fpart(struct FPart fpart);
+void print_fpart_json(struct FPart fpart);
 
 struct FPart new_FPart(int type, int source);
 

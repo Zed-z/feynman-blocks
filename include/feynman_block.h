@@ -17,7 +17,6 @@ struct FBlock {
 	int id;			// Unique block id
 	int type;		// Block type identifier
 	int used_count;	// How many times it's been used
-	int cost;		// Block usage cost; can be interpreted as time or energy
 	int *input;		// Required input particles (type)
 	int *input_id;	// Particles selected for input
 	int *output;	// Output particles (type)
@@ -25,8 +24,9 @@ struct FBlock {
 };
 
 void print_fblock(struct FBlock fblock, char* fpart_types[]);
+void print_fblock_json(struct FBlock fblock);
 
-struct FBlock new_FBlock(int type, int cost, int input[FBLOCK_MAX_INPUT], int output[FBLOCK_MAX_OUTPUT]);
+struct FBlock new_FBlock(int type, int input[FBLOCK_MAX_INPUT], int output[FBLOCK_MAX_OUTPUT]);
 
 
 #endif

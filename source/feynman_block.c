@@ -7,7 +7,7 @@ const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT] = {0};
 int fblock_type_iter = 0;
 
 void print_fblock(struct FBlock fblock, char* fpart_types[]) {
-	printf("<FBlock %d> %s (cost: %d) ", fblock.id, fblock_types[fblock.type], fblock.cost);
+	printf("<FBlock %d> %s ", fblock.id, fblock_types[fblock.type]);
 
 	printf("\t[");
 
@@ -43,7 +43,25 @@ void print_fblock(struct FBlock fblock, char* fpart_types[]) {
 
 }
 
-struct FBlock new_FBlock(int type, int cost, int input[FBLOCK_MAX_INPUT], int output[FBLOCK_MAX_OUTPUT]) {
+void print_fblock_json(struct FBlock fblock) {
+	printf("{\"id\": %d, \"name\": \"%s\", \"input\": [", fblock.id, fblock_types[fblock.type]);
+	if (fblock.used_count > 0) {
+		for (int i = 0; i < FBLOCK_MAX_INPUT; i++) if (fblock.input_id[i] != -1) {
+			printf("%d", fblock.input_id[i]);
+			if (i < FBLOCK_MAX_INPUT - 1 && fblock.input_id[i+1] != -1) printf(", ");
+		}
+	}
+	printf("], \"output\": [");
+	if (fblock.used_count > 0) {
+		for (int i = 0; i < FBLOCK_MAX_INPUT; i++) if (fblock.output_id[i] != -1) {
+			printf("%d", fblock.output_id[i]);
+			if (i < FBLOCK_MAX_INPUT - 1 && fblock.output_id[i+1] != -1) printf(", ");
+		}
+	}
+	printf("]}");
+}
+
+struct FBlock new_FBlock(int type, int input[FBLOCK_MAX_INPUT], int output[FBLOCK_MAX_OUTPUT]) {
 	static int fblock_id_iter = 0;
 
 	int *in = (int*)malloc(FBLOCK_MAX_INPUT * sizeof(int));
@@ -58,5 +76,5 @@ struct FBlock new_FBlock(int type, int cost, int input[FBLOCK_MAX_INPUT], int ou
 	int *out_i = (int*)malloc(FBLOCK_MAX_OUTPUT * sizeof(int));
 	for (int i = 0; i < FBLOCK_MAX_OUTPUT; i++) out_i[i] = -1;
 
-	return (struct FBlock){fblock_id_iter++, type, 0, cost, in, in_i, out, out_i};
+	return (struct FBlock){fblock_id_iter++, type, 0, in, in_i, out, out_i};
 }

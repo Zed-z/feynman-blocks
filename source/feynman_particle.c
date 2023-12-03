@@ -8,6 +8,10 @@ void print_fpart(struct FPart fpart) {
 	printf("<FPart %d> %s (source: %d)\n", fpart.id, fparticle_types[fpart.type], fpart.source);
 }
 
+void print_fpart_json(struct FPart fpart) {
+	printf("{\"id\": %d, \"name\": \"%s\", \"source\": %d}", fpart.id, fparticle_types[fpart.type], fpart.source);
+}
+
 struct FPart new_FPart(int type, int source) {
 	static int fpart_id_iter = 0;
 	return (struct FPart){fpart_id_iter++, type, source};

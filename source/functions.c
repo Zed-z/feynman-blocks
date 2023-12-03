@@ -6,7 +6,7 @@
 
 int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, struct FBlock *fblock, int log, int infinite_uses) {
 	// 
-	// Returns 0 if success, 1 if not enough energy, 2 if input not fullfilled, 3 if already used
+	// Returns 0 if success, 2 if input not fullfilled, 3 if already used
 
 	if (log > 0) {
 		printf("Process: ");
@@ -17,12 +17,6 @@ int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, st
 	if (!infinite_uses && fblock->used_count > 0) {
 		if (log > 0) printf("  Process fail: already used\n");
 		return 3;
-	}
-
-	// Skip if not enough energy
-	if (fblock->cost > *energy) {
-		if (log > 0) printf("  Process fail: not enough energy\n");
-		return 1;
 	}
 
 	int input_indexes[FBLOCK_MAX_INPUT];
@@ -117,9 +111,6 @@ int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, st
 		fblock->output_id[i] = fp.id;
 	}
 
-
-	// Use up energy
-	*energy -= fblock->cost;
 
 	// Increase usage counter
 	fblock->used_count += 1;

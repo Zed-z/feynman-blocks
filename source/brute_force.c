@@ -49,13 +49,21 @@ int usepermutation(
 		}
 	}
 
-	// Success at this point -----------
+	// Success at this point, log results -----------
 
 	if (LOG) print_fpart_all(particle_array_copy, fpart_list_length_copy);
 
-	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
-	print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
-	print_fpart_all(particle_array_copy, fpart_list_length_copy);
+	printf("{\"fblocks\": [");
+	for (int i = 0; i < fblock_list_length; i++) {
+		print_fblock_json(fblock_list[i]);
+		if (i < fblock_list_length - 1) printf(", ");
+	}
+	printf("], \"fparts\": [");
+	for (int i = 0; i < fpart_list_length_copy; i++) {
+		print_fpart_json(particle_array_copy[i]);
+		if (i < fpart_list_length_copy - 1) printf(", ");
+	}
+	printf("]}");
 
 	free(particle_counts);
 	//free(particle_array_copy);
