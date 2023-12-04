@@ -35,3 +35,7 @@ Visualization example (GraphViz):
 ```
 cat example.json | ./main.exe | python3 scripts/json_to_graphviz.py | dot -Tpng > viz.png
 ```
+```
+python3 scripts/random_input.py | tee tests/input.json | ./main.exe | tee tests/output.json | python3 scripts/json_to_graphviz.py | tee tests/viz.dot | dot -Tpng >
+tests/viz.png
+```
