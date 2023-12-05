@@ -20,7 +20,7 @@ int find_index(const char* target, char* arr[], int size) {
 }
 
 
-int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int *fblock_list_length, struct FPart fpart_list[MAX_FPART_AMOUNT], int *fpart_list_length, const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT]) {
+int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int *fblock_list_length, struct FPart fpart_list[MAX_FPART_AMOUNT], int *fpart_list_length, const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT], int *test_mode, int **target_output, int *target_output_length) {
 
     // Setup
     json_error_t error;
@@ -88,6 +88,29 @@ int json_load(char *json_string, struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], i
 		}
 		fblock_type_iter++;
     }
+
+
+	// Mode
+	*test_mode = -1; // Random
+	json_t *json_mode = json_object_get(root, "test_mode");
+	if (json_mode != NULL) {
+		*test_mode = json_integer_value(json_mode);
+	}
+
+	if (*test_mode != -1) {
+		// Brute data
+		json_t *test_data = json_object_get(root, "test_data");
+		size_t test_data_length = json_array_size(test_data);
+
+		(*target_output) = (int*)malloc(sizeof(int)*test_data_length);
+		for (int i = 0; i < test_data_length; i++) (*target_output)[i] = 0;
+
+		for (size_t i = 0; i < test_data_length; i++) {
+			json_t *data = json_array_get(test_data, i);
+			int val = json_integer_value(data);
+			(*target_output)[(*target_output_length)++] = val;
+		}
+	}
 
 
     // Cleanup

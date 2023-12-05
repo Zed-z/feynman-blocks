@@ -3,7 +3,7 @@ import json
 import random
 
 fpart_n = 6
-fblock_n = 8
+fblock_n = 5
 max_io = 4
 
 fparts = random.choices(["e-", "e+", "q", "¬q", "g", "p", "¬p", "νμ", "α", "β", "γ"], k=fpart_n)

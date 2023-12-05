@@ -4,7 +4,6 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 
 #include "include/config.h"
 #include "include/feynman_block.h"
@@ -12,6 +11,7 @@
 #include "include/functions.h"
 #include "include/brute_force.h"
 #include "include/json.h"
+#include "include/timer.h"
 
 struct FPart fpart_list[MAX_FPART_AMOUNT];
 int fpart_list_length = 0;
@@ -27,18 +27,11 @@ int energy = 500;
 struct FBlock *process_list[MAX_PROCESSES];
 int process_id = 0;
 
+int test_mode = -1;
+int *target_output;
+int target_output_length;
+
 int main(int argc, char *argv[]) {
-
-	// Mode select
-	enum Mode { RANDOM, BRUTE };
-	enum Mode mode;
-
-	if (argc < 2) {
-		mode = RANDOM;
-	} else {
-		if (strcmp(argv[1], "random") == 0) mode = RANDOM;
-		if (strcmp(argv[1], "brute") == 0) mode = BRUTE;
-	}
 
 	// Read pipe if available
 	#define READ_MAX 1024
@@ -57,18 +50,22 @@ int main(int argc, char *argv[]) {
 	// Stdin for pipes
 	if (chars_read_count > 0) {
 
-		if (json_load(chars_read, fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
+		if (json_load(chars_read, fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types, &test_mode, &target_output, &target_output_length) == 1) return 1;
 
 	// Arguments
-	} else if (argc > 2) {
+	} else if (argc > 1) {
 
-		if (argv[2][0] == '{') {// Raw json
-			if (json_load(argv[2], fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
+		if (argv[1][0] == '{') {// Raw json
+
+			if (json_load(argv[1], fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types, &test_mode, &target_output, &target_output_length) == 1) return 1;
+
 		} else {// Json file
-			FILE *f = fopen(argv[2], "r");
+
+			FILE *f = fopen(argv[1], "r");
 			fgets(chars_read, READ_MAX, f);
 			close(f);
-			if (json_load(chars_read, fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types) == 1) return 1;
+			if (json_load(chars_read, fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types, &test_mode, &target_output, &target_output_length) == 1) return 1;
+
 		}
 
 	// No data
@@ -81,51 +78,67 @@ int main(int argc, char *argv[]) {
 	if (LOG) print_fpart_all(fpart_list, fpart_list_length);
 
 
-	if (mode == RANDOM) {
-		//Random tests
-		for (int i = 0; i < MAX_PROCESSES; i++) {
-			int randint = rand() % fblock_list_length;
-
-			if (use_fblock(fpart_list, &fpart_list_length, &energy, &(fblock_list[randint]), 0, 0) == 0) {
-				if (LOG) print_fpart_all(fpart_list, fpart_list_length);
-				process_list[process_id++] = &(fblock_list[randint]);
+	timer_reset();
+	switch (test_mode) {
+		case -1: {// Do nothing, just output
+			printf("{\"success\": 1, \"time\": %f, \"fblocks\": [", timer_get());
+			for (int i = 0; i < fblock_list_length; i++) {
+				print_fblock_json(fblock_list[i]);
+				if (i < fblock_list_length - 1) printf(", ");
 			}
-
-			if (energy == 0) {
-				if (LOG) printf("Out of energy!\n");
-				break;
+			printf("], \"fparts\": [");
+			for (int i = 0; i < fpart_list_length; i++) {
+				print_fpart_json(fpart_list[i]);
+				if (i < fpart_list_length - 1) printf(", ");
 			}
+			printf("]}");
+			break;
 		}
-		if (LOG) printf("\n\n");
-		if (LOG) print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
-		if (LOG) print_fpart_all(fpart_list, fpart_list_length);
+		case 0: {//Random tests
+			for (int i = 0; i < MAX_PROCESSES; i++) {
+				int randint = rand() % fblock_list_length;
 
-		if (LOG) printf("\n\nProcesses:\n");
-		for (int i = 0; i < process_id; i++) if (LOG) print_fblock(*(process_list[i]), fparticle_types);
+				if (use_fblock(fpart_list, &fpart_list_length, &energy, &(fblock_list[randint]), 0, 0) == 0) {
+					if (LOG) print_fpart_all(fpart_list, fpart_list_length);
+					process_list[process_id++] = &(fblock_list[randint]);
+				}
+
+				if (energy == 0) {
+					if (LOG) printf("Out of energy!\n");
+					break;
+				}
+			}
+			if (LOG) printf("\n\n");
+			if (LOG) print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
+			if (LOG) print_fpart_all(fpart_list, fpart_list_length);
+
+			if (LOG) printf("\n\nProcesses:\n");
+			for (int i = 0; i < process_id; i++) if (LOG) print_fblock(*(process_list[i]), fparticle_types);
 
 
-		printf("{\"fblocks\": [");
-		for (int i = 0; i < fblock_list_length; i++) {
-			print_fblock_json(fblock_list[i]);
-			if (i < fblock_list_length - 1) printf(", ");
+			printf("{\"fblocks\": [");
+			for (int i = 0; i < fblock_list_length; i++) {
+				print_fblock_json(fblock_list[i]);
+				if (i < fblock_list_length - 1) printf(", ");
+			}
+			printf("], \"fparts\": [");
+			for (int i = 0; i < fpart_list_length; i++) {
+				print_fpart_json(fpart_list[i]);
+				if (i < fpart_list_length - 1) printf(", ");
+			}
+			printf("]}");
+
+			break;
 		}
-		printf("], \"fparts\": [");
-		for (int i = 0; i < fpart_list_length; i++) {
-			print_fpart_json(fpart_list[i]);
-			if (i < fpart_list_length - 1) printf(", ");
+		case 1: {// Brute Force
+			brute_force(fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, target_output, target_output_length);
+
+			break;
 		}
-		printf("]}");
+		default: {// Do nothing
+			printf("No valid mode!\n");
+			exit(1);
+			break;
+		}
 	}
-
-	else if (mode == BRUTE) {
-		// Brute Force
-		int desired_output[] = {2, 2, 6};
-		brute_force(fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, fparticle_types_length);
-	}
-
-	else {
-		printf("No valid mode!\n");
-		exit(1);
-	}
-
 }

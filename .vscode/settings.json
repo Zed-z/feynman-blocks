@@ -53,6 +53,7 @@
 		"feynman_block.h": "c",
 		"jansson_config.h": "c",
 		"functions.h": "c",
-		"jansson.h": "c"
+		"jansson.h": "c",
+		"random": "c"
 	}
 }

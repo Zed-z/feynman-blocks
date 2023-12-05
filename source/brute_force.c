@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "../include/config.h"
 #include "../include/feynman_block.h"
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
 #include "../include/brute_force.h"
+#include "../include/timer.h"
 
 // 1 is a match, 0 is no match
 int usepermutation(
@@ -23,16 +25,17 @@ int usepermutation(
 	int energy_copy = energy;
 
 	if (LOG) {
-		printf("PERMUTATION: ");
-		for (int i = 0; i < stepsize; i++) printf("%d ", steps[i]);printf("\n");
+		printf("--------------------PERMUTATION: ");
+		for (int i = 0; i < stepsize; i++) printf("%d ", steps[i]);
+		printf("\n");
 	}
 
 	for (int i = 0; i < stepsize; i++) {
 		//Reset IO
-		for (int j = 0; j < FBLOCK_MAX_INPUT; j++) {
-			fblock_list[steps[i]].input_id[j] = -1;
-			fblock_list[steps[i]].output_id[j] = -1;
-		}
+		//for (int j = 0; j < FBLOCK_MAX_INPUT; j++) {
+		//	fblock_list[steps[i]].input_id[j] = -1;
+		//	fblock_list[steps[i]].output_id[j] = -1;
+		//}
 		use_fblock(particle_array_copy, &fpart_list_length_copy, &energy_copy, &(fblock_list[steps[i]]), 0, 1);
 	}
 
@@ -56,10 +59,12 @@ int usepermutation(
 	}
 
 	// Success at this point, log results -----------
+	if (LOG) printf("------SUCCES!------\n");
 
 	if (LOG) print_fpart_all(particle_array_copy, fpart_list_length_copy);
 
-	printf("{\"fblocks\": [");
+	//Print
+	printf("{\"success\": 1, \"time\": %f, \"fblocks\": [", timer_get());
 	for (int i = 0; i < fblock_list_length; i++) {
 		print_fblock_json(fblock_list[i]);
 		if (i < fblock_list_length - 1) printf(", ");
@@ -99,13 +104,23 @@ int permutation(
 			printf("%d ", arr[i]);
 			printf("\n");
 		}*/
+
+		for (int i = 0; i < fblock_list_length; i++) {
+			//Reset block IO
+			for (int j = 0; j < FBLOCK_MAX_INPUT; j++) {
+				fblock_list[i].input_id[j] = -1;
+			}
+			for (int j = 0; j < FBLOCK_MAX_OUTPUT; j++) {
+				fblock_list[i].output_id[j] = -1;
+			}
+		}
+
 		return usepermutation(arr, arrlen, fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, desired_output_length);
 	}
 
 	for(int i = start; i <= end; i++) {
 		swap((arr + i), (arr + start));
 		if (permutation(arr, arrlen, start + 1, end, fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, desired_output_length) == 1) {
-			if (LOG) printf("SUKCES!");
 			exit(1);
 		}
 		swap((arr + i), (arr + start));
@@ -125,6 +140,11 @@ void brute_force(
 	for (int i = 0; i < fblock_list_length; i++) a[i] = i;
 
 	permutation(a, fblock_list_length, 0, fblock_list_length - 1, fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, desired_output_length);
+
+	// -------- If you got here, no permutations were found.
+
+	//Print
+	printf("{\"success\": 0, \"time\": %f}", timer_get());
 
 	free(a);
 }
