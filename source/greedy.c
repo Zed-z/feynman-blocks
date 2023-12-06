@@ -1,0 +1,140 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "../include/config.h"
+#include "../include/timer.h"
+
+#include "../include/feynman_block.h"
+#include "../include/feynman_particle.h"
+#include "../include/functions.h"
+
+#include "../include/greedy.h"
+
+
+int check_solution(
+	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+) {
+	// Setup array for checking types
+	int *particle_counts = (int*)malloc(sizeof(int) * desired_output_length);
+	for (int i = 0; i < desired_output_length; i++) particle_counts[i] = 0;
+
+	// Count particle type amounts
+	for (int i = 0; i < fpart_list_length; i++) {
+		if (fpart_list[i].deleted == 1) continue;
+		particle_counts[fpart_list[i].type]++;
+	}
+
+	// Check if counts match, return 0 early otherwise
+	for (int i = 0; i < desired_output_length; i++) {
+		if (LOG) printf("%d %d\n", particle_counts[i], desired_output[i]);
+		if (particle_counts[i] != desired_output[i]) {
+			free(particle_counts);
+			return 0;
+		}
+	}
+
+	// If here, all checks passed, return 1
+	free(particle_counts);
+	return 1;
+}
+
+
+void greedy(
+	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
+	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length,
+	int randomized // Whether to pick the best or one of the best solutions
+) {
+
+	// Create choice quality array, -1 means ignore no matter what
+	int *choice_quality = (int*)malloc(sizeof(int) * fblock_list_length);
+	for (int i = 0; i < fblock_list_length; i++) choice_quality[i] = -1;
+
+	// Calculate quality
+	int valid_choice_exists;
+	do {
+
+		valid_choice_exists = 0;
+
+		for (int i = 0; i < fblock_list_length; i++) {
+
+			if (LOG) print_fblock(fblock_list[i], fparticle_types);
+
+			// Never use a block twice
+			if (fblock_list[i].used_count > 0) {
+				choice_quality[i] = -1;
+				if (LOG) printf("Already used!\n");
+				continue;
+			}
+
+			// Don't use if inputs don't match
+			if (use_fblock(fpart_list, &fpart_list_length, &(fblock_list[i]), 0, 1, 1) == 2) {
+				choice_quality[i] = -1;
+				if (LOG) printf("Inputs don't match!\n");
+				continue;
+			}
+
+			// After this point, the block is valid
+			choice_quality[i] = 0;
+			valid_choice_exists = 1;
+
+			// Add score if output in desired output
+			for (int j = 0; j < FBLOCK_MAX_OUTPUT; j++) {
+				if (fblock_list[i].output[j] == -1) continue;
+
+				for (int k = 0; k < desired_output_length; k++) {
+					if (fblock_list[i].output[j] == desired_output[k]) {
+						choice_quality[i] += 1;
+					}
+				}
+			}
+		}
+
+
+		// Print quality
+		if (LOG) {
+			printf("Quality: ");
+			for (int i = 0; i < fblock_list_length; i++) {
+				printf("%d ", choice_quality[i]);
+			}
+			printf("\n");
+		}
+
+
+		// Use highest quality block
+		if (valid_choice_exists) {
+
+			int max_index = 0;
+			for (int i = 1; i < fblock_list_length; i++) {
+				if (choice_quality[i] > choice_quality[max_index]) {
+					max_index = i;
+				}
+			}
+
+			if (LOG) {
+				printf("Using block: ");
+				print_fblock(fblock_list[max_index], fparticle_types);
+			}
+
+			use_fblock(fpart_list, &fpart_list_length, &(fblock_list[max_index]), 0, 1, 0);
+		}
+
+	} while (valid_choice_exists);
+
+
+	// Print JSON
+	printf("{\"success\": %d, \"time\": %f, \"fblocks\": [", check_solution(fpart_list, fpart_list_length, desired_output, desired_output_length), timer_get());
+	for (int i = 0; i < fblock_list_length; i++) {
+		print_fblock_json(fblock_list[i]);
+		if (i < fblock_list_length - 1) printf(", ");
+	}
+	printf("], \"fparts\": [");
+	for (int i = 0; i < fpart_list_length; i++) {
+		print_fpart_json(fpart_list[i]);
+		if (i < fpart_list_length - 1) printf(", ");
+	}
+	printf("]}");
+
+}

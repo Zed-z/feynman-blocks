@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "../include/config.h"
 #include "../include/feynman_block.h"
@@ -15,14 +14,13 @@ int usepermutation(
 	int *steps, int stepsize,
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
-	int energy, int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
 ) {
 	struct FPart particle_array_copy[MAX_FPART_AMOUNT];
 	for (int i = 0; i < fpart_list_length; i++) {
 		particle_array_copy[i] = fpart_list[i];
 	}
 	int fpart_list_length_copy = fpart_list_length;
-	int energy_copy = energy;
 
 	if (LOG) {
 		printf("--------------------PERMUTATION: ");
@@ -36,7 +34,7 @@ int usepermutation(
 		//	fblock_list[steps[i]].input_id[j] = -1;
 		//	fblock_list[steps[i]].output_id[j] = -1;
 		//}
-		use_fblock(particle_array_copy, &fpart_list_length_copy, &energy_copy, &(fblock_list[steps[i]]), 0, 1);
+		use_fblock(particle_array_copy, &fpart_list_length_copy, &(fblock_list[steps[i]]), 0, 1, 0);
 	}
 
 	if (LOG) print_fpart_all(particle_array_copy, fpart_list_length_copy);
@@ -94,7 +92,7 @@ int permutation(
 	int *arr, int arrlen, int start, int end,
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
-	int energy, int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
 ) {
 
 	if(start == end) {
@@ -115,12 +113,12 @@ int permutation(
 			}
 		}
 
-		return usepermutation(arr, arrlen, fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, desired_output_length);
+		return usepermutation(arr, arrlen, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
 	}
 
 	for(int i = start; i <= end; i++) {
 		swap((arr + i), (arr + start));
-		if (permutation(arr, arrlen, start + 1, end, fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, desired_output_length) == 1) {
+		if (permutation(arr, arrlen, start + 1, end, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length) == 1) {
 			exit(1);
 		}
 		swap((arr + i), (arr + start));
@@ -132,14 +130,14 @@ int permutation(
 void brute_force(
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
-	int energy, int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
 ) {
 
 	// Create array of values 0..i for permutation purposes
 	int *a = (int*)malloc(fblock_list_length * sizeof(int));
 	for (int i = 0; i < fblock_list_length; i++) a[i] = i;
 
-	permutation(a, fblock_list_length, 0, fblock_list_length - 1, fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, desired_output, desired_output_length);
+	permutation(a, fblock_list_length, 0, fblock_list_length - 1, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
 
 	// -------- If you got here, no permutations were found.
 

@@ -10,6 +10,7 @@
 #include "include/feynman_particle.h"
 #include "include/functions.h"
 #include "include/brute_force.h"
+#include "include/greedy.h"
 #include "include/json.h"
 #include "include/timer.h"
 
@@ -22,7 +23,6 @@ int fblock_list_length = 0;
 void swap(int *a, int *b);
 void permutation(int *arr, int arrlen, int start, int end);
 
-int energy = 500;
 #define MAX_PROCESSES 100
 struct FBlock *process_list[MAX_PROCESSES];
 int process_id = 0;
@@ -97,15 +97,9 @@ int main(int argc, char *argv[]) {
 		case 0: {//Random tests
 			for (int i = 0; i < MAX_PROCESSES; i++) {
 				int randint = rand() % fblock_list_length;
-
-				if (use_fblock(fpart_list, &fpart_list_length, &energy, &(fblock_list[randint]), 0, 0) == 0) {
+				if (use_fblock(fpart_list, &fpart_list_length, &(fblock_list[randint]), 0, 0, 0) == 0) {
 					if (LOG) print_fpart_all(fpart_list, fpart_list_length);
 					process_list[process_id++] = &(fblock_list[randint]);
-				}
-
-				if (energy == 0) {
-					if (LOG) printf("Out of energy!\n");
-					break;
 				}
 			}
 			if (LOG) printf("\n\n");
@@ -131,7 +125,17 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		case 1: {// Brute Force
-			brute_force(fblock_list, fblock_list_length, fpart_list, fpart_list_length, energy, target_output, target_output_length);
+			brute_force(fblock_list, fblock_list_length, fpart_list, fpart_list_length, target_output, target_output_length);
+
+			break;
+		}
+		case 2: {// Greedy
+			greedy(fblock_list, fblock_list_length, fpart_list, fpart_list_length, target_output, target_output_length, 0);
+
+			break;
+		}
+		case 3: {// Greedy randomized
+			greedy(fblock_list, fblock_list_length, fpart_list, fpart_list_length, target_output, target_output_length, 1);
 
 			break;
 		}

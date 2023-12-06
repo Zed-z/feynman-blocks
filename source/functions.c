@@ -4,7 +4,7 @@
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
 
-int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, struct FBlock *fblock, int log, int infinite_uses) {
+int use_fblock(struct FPart *fpart_list, int *fpart_list_length, struct FBlock *fblock, int log, int infinite_uses, int dry_run) {
 	// 
 	// Returns 0 if success, 2 if input not fullfilled, 3 if already used
 
@@ -78,35 +78,39 @@ int use_fblock(struct FPart *fpart_list, int *fpart_list_length, int *energy, st
 		}
 	}
 
+	// Dry run option to allow testing without modifying
+	if (!dry_run) {
 
-	// Save input ids
-	for (int i = 0; i < FBLOCK_MAX_INPUT; i++) {
-		if (fblock->input[i] == -1) break;
+		// Save input ids
+		for (int i = 0; i < FBLOCK_MAX_INPUT; i++) {
+			if (fblock->input[i] == -1) break;
 
-		fblock->input_id[i] = fpart_list[input_indexes[i]].id;
+			fblock->input_id[i] = fpart_list[input_indexes[i]].id;
+		}
+
+
+		// Delete input particles
+		for (int i = 0; i < input_checks_total; i++) {
+
+			int to_delete = input_indexes[i];
+			fpart_list[to_delete].deleted = 1;
+		}
+
+
+		// Add output particles
+		for (int i = 0; i < FBLOCK_MAX_OUTPUT; i++) {
+			if (fblock->output[i] == -1) break;
+
+			struct FPart fp = new_FPart(fblock->output[i], fblock->id);
+			fpart_list[(*fpart_list_length)++] = fp;
+			fblock->output_id[i] = fp.id;
+		}
+
+
+		// Increase usage counter
+		fblock->used_count += 1;
+
 	}
-
-
-	// Delete input particles
-	for (int i = 0; i < input_checks_total; i++) {
-
-		int to_delete = input_indexes[i];
-		fpart_list[to_delete].deleted = 1;
-	}
-
-
-	// Add output particles
-	for (int i = 0; i < FBLOCK_MAX_OUTPUT; i++) {
-		if (fblock->output[i] == -1) break;
-
-		struct FPart fp = new_FPart(fblock->output[i], fblock->id);
-		fpart_list[(*fpart_list_length)++] = fp;
-		fblock->output_id[i] = fp.id;
-	}
-
-
-	// Increase usage counter
-	fblock->used_count += 1;
 
 	if (log > 0) printf("  Process success!\n");
 	return 0;
