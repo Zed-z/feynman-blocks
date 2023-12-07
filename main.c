@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
 			FILE *f = fopen(argv[1], "r");
 			fgets(chars_read, READ_MAX, f);
-			close(f);
+			fclose(f);
 			if (json_load(chars_read, fblock_list, &fblock_list_length, fpart_list, &fpart_list_length, fblock_types, &test_mode, &target_output, &target_output_length) == 1) return 1;
 
 		}
