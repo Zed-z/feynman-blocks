@@ -80,20 +80,6 @@ int main(int argc, char *argv[]) {
 
 	timer_reset();
 	switch (test_mode) {
-		case -1: {// Do nothing, just output
-			printf("{\"success\": 1, \"time\": %f, \"fblocks\": [", timer_get());
-			for (int i = 0; i < fblock_list_length; i++) {
-				print_fblock_json(fblock_list[i]);
-				if (i < fblock_list_length - 1) printf(", ");
-			}
-			printf("], \"fparts\": [");
-			for (int i = 0; i < fpart_list_length; i++) {
-				print_fpart_json(fpart_list[i]);
-				if (i < fpart_list_length - 1) printf(", ");
-			}
-			printf("]}");
-			break;
-		}
 		case 0: {//Random tests
 			for (int i = 0; i < MAX_PROCESSES; i++) {
 				int randint = rand() % fblock_list_length;
@@ -140,7 +126,20 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		default: {// Do nothing
-			printf("No valid mode!\n");
+			if (LOG) printf("No valid mode!\n");
+
+			printf("{\"success\": 1, \"time\": %f, \"fblocks\": [", timer_get());
+			for (int i = 0; i < fblock_list_length; i++) {
+				print_fblock_json(fblock_list[i]);
+				if (i < fblock_list_length - 1) printf(", ");
+			}
+			printf("], \"fparts\": [");
+			for (int i = 0; i < fpart_list_length; i++) {
+				print_fpart_json(fpart_list[i]);
+				if (i < fpart_list_length - 1) printf(", ");
+			}
+			printf("]}");
+
 			exit(1);
 			break;
 		}

@@ -63,10 +63,10 @@ void greedy(
 	for (int i = 0; i < fblock_list_length; i++) choice_quality[i] = -1;
 
 	// Calculate quality
-	int valid_choice_exists;
+	int valid_choices;
 	do {
 
-		valid_choice_exists = 0;
+		valid_choices = 0;
 
 		for (int i = 0; i < fblock_list_length; i++) {
 
@@ -125,12 +125,12 @@ void greedy(
 
 		// Valid choice exists
 		for (int i = 1; i < fblock_list_length; i++) {
-			if (choice_quality[i] >= 0) valid_choice_exists = 1;
+			if (choice_quality[i] >= 0) valid_choices += 1;
 		}
 
 
 		// Use highest quality block
-		if (valid_choice_exists) {
+		if (valid_choices > 0) {
 
 			int *choice_indexes = (int*)malloc(sizeof(int) * fblock_list_length);
 			for (int i = 0; i < fblock_list_length; i++) choice_indexes[i] = i;
@@ -151,9 +151,7 @@ void greedy(
 
 			int index_to_use = choice_indexes[0];
 			if (randomized) {
-				int maxind = 0;
-				while (choice_indexes[maxind+1] != -1) maxind++;
-				index_to_use = choice_indexes[min(rand() % 3, maxind)];
+				index_to_use = choice_indexes[min(rand() % 3, valid_choices-1)];
 			}
 
 			free(choice_indexes);
@@ -166,7 +164,7 @@ void greedy(
 			use_fblock(fpart_list, &fpart_list_length, &(fblock_list[index_to_use]), 0, 1, 0);
 		}
 
-	} while (valid_choice_exists);
+	} while (valid_choices > 0);
 
 
 	// Print JSON
