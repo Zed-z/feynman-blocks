@@ -9,8 +9,12 @@ for line in sys.stdin:
 	data = json.loads(line)
 	#print(data)
 
-	fblocks = data["fblocks"]
-	fparts = data["fparts"]
+	try:
+		fblocks = data["fblocks"]
+		fparts = data["fparts"]
+	except KeyError:
+		fblocks = []
+		fparts = []
 
 
 	print("digraph G {")
