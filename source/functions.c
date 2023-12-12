@@ -1,8 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "../include/config.h"
 
 #include "../include/feynman_block.h"
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
+
 
 int use_fblock(struct FPart *fpart_list, int *fpart_list_length, struct FBlock *fblock, int log, int infinite_uses, int dry_run) {
 	// 
@@ -124,4 +128,68 @@ void print_fpart_all(struct FPart *fpart_list, int fpart_list_length) {
 void print_fblock_all(struct FBlock *fblock_list, int fblock_list_length, char **fparticle_types) {
 	printf("Total Blocks: %d\n", fblock_list_length);
 	for (int i = 0; i < fblock_list_length; i++) print_fblock(fblock_list[i], fparticle_types);
+}
+
+
+
+int check_solution_bool(
+	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+) {
+	// Setup array for checking types
+	int *particle_counts = (int*)malloc(sizeof(int) * desired_output_length);
+	for (int i = 0; i < desired_output_length; i++) particle_counts[i] = 0;
+
+	// Count particle type amounts
+	for (int i = 0; i < fpart_list_length; i++) {
+		if (fpart_list[i].deleted == 1) continue;
+		particle_counts[fpart_list[i].type]++;
+	}
+
+	// Check matching counts
+	for (int i = 0; i < desired_output_length; i++) {
+
+		if (LOG) printf("%d %d\n", particle_counts[i], desired_output[i]);
+		if (particle_counts[i] != desired_output[i]) {
+
+			// Something didn't match, return early
+			free(particle_counts);
+			return 0;
+		}
+	}
+
+	// If here, all checks passed, return 1
+	free(particle_counts);
+	return 1;
+}
+
+float check_solution_float(
+	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+) {
+	// Setup array for checking types
+	int *particle_counts = (int*)malloc(sizeof(int) * desired_output_length);
+	for (int i = 0; i < desired_output_length; i++) particle_counts[i] = 0;
+
+	// Count particle type amounts
+	for (int i = 0; i < fpart_list_length; i++) {
+		if (fpart_list[i].deleted == 1) continue;
+		particle_counts[fpart_list[i].type]++;
+	}
+
+	// Check matching counts
+	int parts_matching = 0;
+	int parts_output = 0;
+	int parts_desired_output = 0;
+
+	for (int i = 0; i < desired_output_length; i++) {
+		if (LOG) printf("%d %d\n", particle_counts[i], desired_output[i]);
+		parts_matching += min(particle_counts[i], desired_output[i]);
+		parts_output += particle_counts[i];
+		parts_desired_output += desired_output[i];
+	}
+
+	// If here, all checks passed, return 1
+	free(particle_counts);
+	return ((float)parts_matching / (float)max(parts_output, parts_desired_output));
 }

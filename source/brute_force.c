@@ -40,20 +40,8 @@ int usepermutation(
 	if (LOG) print_fpart_all(particle_array_copy, fpart_list_length_copy);
 	if (LOG) print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
 
-	int *particle_counts = (int*)malloc(sizeof(int) * desired_output_length);
-	for (int i = 0; i < desired_output_length; i++) particle_counts[i] = 0;
-
-	for (int i = 0; i < fpart_list_length_copy; i++) {
-		if (particle_array_copy[i].deleted == 1) continue;
-		particle_counts[particle_array_copy[i].type]++;
-	}
-
-	for (int i = 0; i < desired_output_length; i++) {
-		if (LOG) printf("%d %d\n", particle_counts[i], desired_output[i]);
-		if (particle_counts[i] != desired_output[i]) {
-			free(particle_counts);
-			return 0;
-		}
+	if (check_solution_bool(particle_array_copy, fpart_list_length_copy, desired_output, desired_output_length) == 0) {
+		return 0;
 	}
 
 	// Success at this point, log results -----------
@@ -74,7 +62,6 @@ int usepermutation(
 	}
 	printf("]}");
 
-	free(particle_counts);
 	//free(particle_array_copy);
 	return 1;
 }
@@ -119,7 +106,7 @@ int permutation(
 	for(int i = start; i <= end; i++) {
 		swap((arr + i), (arr + start));
 		if (permutation(arr, arrlen, start + 1, end, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length) == 1) {
-			exit(1);
+			return 1;
 		}
 		swap((arr + i), (arr + start));
 	}
@@ -137,12 +124,12 @@ void brute_force(
 	int *a = (int*)malloc(fblock_list_length * sizeof(int));
 	for (int i = 0; i < fblock_list_length; i++) a[i] = i;
 
-	permutation(a, fblock_list_length, 0, fblock_list_length - 1, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
+	int ret = permutation(a, fblock_list_length, 0, fblock_list_length - 1, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
 
 	// -------- If you got here, no permutations were found.
 
 	//Print
-	printf("{\"success\": 0, \"time\": %f}", timer_get());
+	if (ret == 0) printf("{\"success\": 0, \"time\": %f}", timer_get());
 
 	free(a);
 }

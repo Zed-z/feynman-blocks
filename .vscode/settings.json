@@ -54,6 +54,8 @@
 		"jansson_config.h": "c",
 		"functions.h": "c",
 		"jansson.h": "c",
-		"random": "c"
+		"random": "c",
+		"greedy.h": "c",
+		"brute_force.h": "c"
 	}
 }

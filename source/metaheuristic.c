@@ -10,14 +10,13 @@
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
 
-#include "../include/greedy.h"
+#include "../include/metaheuristic.h"
 
 
-void greedy(
+void metaheuristic(
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
-	int desired_output[MAX_FPART_AMOUNT], int desired_output_length,
-	int randomized // Whether to pick the best or one of the best solutions
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
 ) {
 
 	// Init random
@@ -116,9 +115,6 @@ void greedy(
 			} 
 
 			int index_to_use = choice_indexes[0];
-			if (randomized) {
-				index_to_use = choice_indexes[min(rand() % 3, valid_choices-1)];
-			}
 
 			free(choice_indexes);
 

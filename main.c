@@ -6,13 +6,17 @@
 #include <fcntl.h>
 
 #include "include/config.h"
+#include "include/functions.h"
+#include "include/timer.h"
+#include "include/json.h"
+
 #include "include/feynman_block.h"
 #include "include/feynman_particle.h"
-#include "include/functions.h"
+
 #include "include/brute_force.h"
 #include "include/greedy.h"
-#include "include/json.h"
-#include "include/timer.h"
+#include "include/metaheuristic.h"
+
 
 struct FPart fpart_list[MAX_FPART_AMOUNT];
 int fpart_list_length = 0;
@@ -81,13 +85,35 @@ int main(int argc, char *argv[]) {
 	timer_reset();
 	switch (test_mode) {
 		case 0: {//Random tests
-			for (int i = 0; i < MAX_PROCESSES; i++) {
-				int randint = rand() % fblock_list_length;
-				if (use_fblock(fpart_list, &fpart_list_length, &(fblock_list[randint]), 0, 0, 0) == 0) {
+
+			// Create block queue and shuffle it
+			int *block_queue = (int*)malloc(sizeof(int) * fblock_list_length);
+			for (int i = 0; i < fblock_list_length; i++) block_queue[i] = i;
+
+			for (int i = 0; i < fblock_list_length - 1; i++) {
+				int j = i + rand() / (RAND_MAX / (fblock_list_length - i) + 1);
+				int tmp = block_queue[i];
+				block_queue[i] = block_queue[j];
+				block_queue[j] = tmp;
+			}
+
+			// Use blocks in order
+			for (int i = 0; i < fblock_list_length; i++) {
+				int queued = block_queue[i];
+
+				if (LOG) {
+					printf("Using block: ");
+					print_fblock(fblock_list[queued], fparticle_types);
+				}
+
+				if (use_fblock(fpart_list, &fpart_list_length, &(fblock_list[queued]), 0, 0, 0) == 0) {
+					if (LOG) printf("Success!\n");
 					if (LOG) print_fpart_all(fpart_list, fpart_list_length);
-					process_list[process_id++] = &(fblock_list[randint]);
+				} else {
+					if (LOG) printf("Fail!\n");
 				}
 			}
+
 			if (LOG) printf("\n\n");
 			if (LOG) print_fblock_all(fblock_list, fblock_list_length, fparticle_types);
 			if (LOG) print_fpart_all(fpart_list, fpart_list_length);
@@ -125,10 +151,15 @@ int main(int argc, char *argv[]) {
 
 			break;
 		}
+		case 4: {// Metaheuristic
+			metaheuristic(fblock_list, fblock_list_length, fpart_list, fpart_list_length, target_output, target_output_length);
+
+			break;
+		}
 		default: {// Do nothing
 			if (LOG) printf("No valid mode!\n");
 
-			printf("{\"success\": 1, \"time\": %f, \"fblocks\": [", timer_get());
+			printf("{\"success\": -1, \"time\": %f, \"fblocks\": [", timer_get());
 			for (int i = 0; i < fblock_list_length; i++) {
 				print_fblock_json(fblock_list[i]);
 				if (i < fblock_list_length - 1) printf(", ");

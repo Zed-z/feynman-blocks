@@ -17,6 +17,8 @@ The program runs in following modes:
 - 1 - `brute` - tries to guess blocks needed to reach a state via brute force
 - 2 - `greedy` - tries to guess blocks needed to reach a state via a greedy algorithm
 - 3 - `greedy-randomized` - tries to guess blocks needed to reach a state via a randomized greedy algorithm
+- 4 - `metaheuristic` - applies a heuristic algorithm to try and solve the problem
+
 
 
 If not provided, the default mode is `random`.
