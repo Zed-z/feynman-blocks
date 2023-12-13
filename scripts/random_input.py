@@ -2,27 +2,35 @@ import sys
 import json
 import random
 
-fpart_n = 6
-fblock_n = 4
-fblock_n_per_type = 3
+
+if len(sys.argv) > 1:
+	fpart_types = int(sys.argv[1])
+	fblock_types = int(sys.argv[2])
+	fpart_amount = int(sys.argv[3])
+	fblock_amount = int(sys.argv[4])
+else:
+	fpart_types = 6
+	fblock_types = 4
+	fpart_amount = 10
+	fblock_amount = 10
+
+
 max_io = 4
+fpart_amounts_chosen = random.choices(range(fpart_types), k=fpart_amount)
+fblock_amounts_chosen = random.choices(range(fblock_types), k=fblock_amount)
 
-#fpart_n = 2
-#fblock_n = 1
-#fblock_n_per_type = 1
-#max_io = 2
-
-fparts = random.sample(["e-", "e+", "q", "¬q", "g", "p", "¬p", "νμ", "α", "β", "γ"], k=fpart_n)
+fparts = random.sample(["e-", "e+", "q", "¬q", "g", "p", "¬p", "νμ", "α", "β", "γ"], k=fpart_types)
 
 
 data = dict()
-data["particles"] = [[fp, random.randint(0, 3)] for fp in fparts]
+data["particles"] = [[fparts[i], fpart_amounts_chosen.count(i)] for i in range(len(fparts))]
+
 
 blocks = []
-for i in range(fblock_n):
+for i in range(fblock_types):
 	input = random.choices(fparts, k=random.randint(0, max_io))
 	output = random.choices(fparts, k=random.randint(0, max_io))
-	count = random.randint(fblock_n_per_type, fblock_n_per_type)
+	count = fblock_amounts_chosen.count(i)
 	name = " ".join(input) + " -> " + " ".join(output)
 	blocks.append([name, count, input, output])
 data["blocks"] = blocks
