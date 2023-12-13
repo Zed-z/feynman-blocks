@@ -13,133 +13,170 @@
 #include "../include/metaheuristic.h"
 
 
+void crossover(int *parent_a, int *parent_b, int *child_a, int *child_b, int length) {
+	int crossover_point = length / 2;
+
+	int ind_a = 0;
+	int ind_b = 0;
+
+	for (int i = 0; i < crossover_point; i++) {
+		child_a[ind_a++] = parent_a[i];
+		child_b[ind_b++] = parent_b[i];
+	}
+
+	for (int i = 0; i < length; i++) {
+
+		int is_in_a = 0;
+		int is_in_b = 0;
+
+		for (int j = 0; j < crossover_point; j++) {
+			if (child_a[j] == parent_b[i]) is_in_a = 1;
+			if (child_b[j] == parent_a[i]) is_in_b = 1;
+			if (is_in_a && is_in_b) break;
+		}
+
+		if (!is_in_a) child_a[ind_a++] = parent_b[i];
+		if (!is_in_b) child_b[ind_b++] = parent_a[i];
+	}
+}
+
+void mutation(int *child, int length, int chance) {
+	for (int i = 0; i < length - 1; i++) {
+		if ((double)rand() / RAND_MAX > chance) continue;
+
+		int j = rand() % length;
+		int tmp = child[i];
+		child[i] = child[j];
+		child[j] = tmp;
+	}
+}
+
+float test_out_mutation(
+	int *steps, int length,
+	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
+	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
+	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
+) {
+	struct FPart fpart_list_copy[MAX_FPART_AMOUNT];
+	for (int i = 0; i < fpart_list_length; i++) {
+		fpart_list_copy[i] = fpart_list[i];
+	}
+	int fpart_list_length_copy = fpart_list_length;
+
+	for (int i = 0; i < length; i++) {
+		int queued = steps[i];
+
+		if (LOG) {
+			printf("Using block: ");
+			print_fblock(fblock_list[queued], fparticle_types);
+		}
+
+		if (use_fblock(fpart_list_copy, &fpart_list_length_copy, &(fblock_list[queued]), 0, 0, 0) == 0) {
+			if (LOG) printf("Success!\n");
+			if (LOG) print_fpart_all(fpart_list_copy, fpart_list_length_copy);
+		} else {
+			if (LOG) printf("Fail!\n");
+		}
+	}
+
+	return check_solution_float(fpart_list_copy, fpart_list_length, desired_output, desired_output_length);
+}
+
+
 void metaheuristic(
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
 	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
 ) {
 
-	// Init random
-	time_t t;
-	srand((unsigned) time(&t));
+	#define GENETICS_AMOUNT 10
+	#define GENETICS_LENGTH fblock_list_length
+	#define EVOLUTIONS 5
+	#define MUTATION_CHANCE 0.25
 
-	// Create choice quality array, -1 means ignore no matter what
-	int *choice_quality = (int*)malloc(sizeof(int) * fblock_list_length);
-	for (int i = 0; i < fblock_list_length; i++) choice_quality[i] = -1;
+	// Define structures for storing information
+	int *genetic_board = (int*)malloc(sizeof(int)*GENETICS_LENGTH*GENETICS_AMOUNT);
+	float *genetic_quality = (float*)malloc(sizeof(float)*GENETICS_AMOUNT);
 
-	// Calculate quality
-	int valid_choices;
-	do {
+	for (int i = 0; i < GENETICS_AMOUNT; i++) {
 
-		valid_choices = 0;
+		#define CURRENT_GENETIC_ROW (i * GENETICS_LENGTH)
 
-		for (int i = 0; i < fblock_list_length; i++) {
+		// Create block queue
+		for (int j = 0; j < GENETICS_LENGTH; j++) genetic_board[CURRENT_GENETIC_ROW+j] = j;
 
-			if (LOG) print_fblock(fblock_list[i], fparticle_types);
-
-			// Never use a block twice
-			if (fblock_list[i].used_count > 0) {
-				choice_quality[i] = -1;
-				if (LOG) printf("Already used!\n");
-				continue;
-			}
-
-			// Don't use if inputs don't match
-			if (use_fblock(fpart_list, &fpart_list_length, &(fblock_list[i]), 0, 1, 1) == 2) {
-				choice_quality[i] = -1;
-				if (LOG) printf("Inputs don't match!\n");
-				continue;
-			}
-
-			// After this point, the block is valid
-			choice_quality[i] = 0;
-
-			// Add score if output in desired output
-			for (int j = 0; j < FBLOCK_MAX_OUTPUT; j++) {
-				if (fblock_list[i].output[j] == -1) continue;
-
-				for (int k = 0; k < desired_output_length; k++) {
-					if (fblock_list[i].output[j] == desired_output[k]) {
-						choice_quality[i] += 1;
-					}
-				}
-			}
-
-			// Subtract score if input needed
-			for (int j = 0; j < FBLOCK_MAX_INPUT; j++) {
-				if (fblock_list[i].input[j] == -1) continue;
-
-				for (int k = 0; k < desired_output_length; k++) {
-					if (fblock_list[i].input[j] == desired_output[k]) {
-						choice_quality[i] -= 1;
-					}
-				}
-			}
+		// Shuffle
+		for (int k = 0; k < GENETICS_LENGTH - 1; k++) {
+			int j = k + rand() / (RAND_MAX / (GENETICS_LENGTH - k) + 1);
+			int tmp = genetic_board[CURRENT_GENETIC_ROW+k];
+			genetic_board[CURRENT_GENETIC_ROW+k] = genetic_board[CURRENT_GENETIC_ROW+j];
+			genetic_board[CURRENT_GENETIC_ROW+j] = tmp;
 		}
 
-
-		// Print quality
-		if (LOG) {
-			printf("Quality: ");
-			for (int i = 0; i < fblock_list_length; i++) {
-				printf("%d ", choice_quality[i]);
-			}
-			printf("\n");
-		}
-
-
-		// Valid choice exists
-		for (int i = 1; i < fblock_list_length; i++) {
-			if (choice_quality[i] >= 0) valid_choices += 1;
-		}
-
-
-		// Use highest quality block
-		if (valid_choices > 0) {
-
-			int *choice_indexes = (int*)malloc(sizeof(int) * fblock_list_length);
-			for (int i = 0; i < fblock_list_length; i++) choice_indexes[i] = i;
-
-			for (int i = 0; i < fblock_list_length; i++) {
-				for (int j = 0; j < fblock_list_length; j++) {
-					if (choice_quality[i] > choice_quality[j]) {
-						int tmp = choice_quality[i];
-						choice_quality[i] = choice_quality[j];
-						choice_quality[j] = tmp;
-
-						int tmpind = choice_indexes[i];
-						choice_indexes[i] = choice_indexes[j];
-						choice_indexes[j] = tmpind;
-					}
-				}
-			} 
-
-			int index_to_use = choice_indexes[0];
-
-			free(choice_indexes);
-
-			if (LOG) {
-				printf("Using block: ");
-				print_fblock(fblock_list[index_to_use], fparticle_types);
-			}
-
-			use_fblock(fpart_list, &fpart_list_length, &(fblock_list[index_to_use]), 0, 1, 0);
-		}
-
-	} while (valid_choices > 0);
-
-
-	// Print JSON
-	printf("{\"success\": %f, \"time\": %f, \"fblocks\": [", check_solution_float(fpart_list, fpart_list_length, desired_output, desired_output_length), timer_get());
-	for (int i = 0; i < fblock_list_length; i++) {
-		print_fblock_json(fblock_list[i]);
-		if (i < fblock_list_length - 1) printf(", ");
+		// Set quality
+		genetic_quality[i] = test_out_mutation(genetic_board+CURRENT_GENETIC_ROW, GENETICS_LENGTH, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
 	}
-	printf("], \"fparts\": [");
-	for (int i = 0; i < fpart_list_length; i++) {
-		print_fpart_json(fpart_list[i]);
-		if (i < fpart_list_length - 1) printf(", ");
+	printf("a");
+
+	for (int evo = 0; evo < EVOLUTIONS; evo++) {
+
+		// Sort to get parents
+		int max_ind = 0;
+		float max_val = -1;
+		int max_ind_2 = 0;
+		float max_val_2 = -1;
+
+		for (int j = 0; j < GENETICS_AMOUNT; j++) {
+			if (genetic_quality[j] > max_val) {
+				max_ind_2 = max_ind;
+				max_val_2 = max_val;
+				max_ind = j;
+				max_val = genetic_quality[j];
+			} else if (genetic_quality[j] > max_val_2 && genetic_quality[j] < max_val) {
+				max_ind_2 = j;
+				max_val_2 = genetic_quality[j];
+			}
+		}
+
+		// Parents
+		int parent_a_ind = max_ind;
+		int parent_b_ind = max_ind_2;
+
+		// Crossover and mutate non-parent indexes
+		for (int j = 0; j < GENETICS_AMOUNT; j++) {
+			if (j == parent_a_ind || j == parent_b_ind) continue;
+
+			int next_non_parent = -1;
+			for (int k = 0; k < GENETICS_AMOUNT; k++) {
+				if (k != parent_a_ind && k != parent_b_ind) {
+					next_non_parent = k;
+					break;
+				}
+			}
+			if (next_non_parent == -1) continue;
+
+			crossover(genetic_board+(parent_a_ind*GENETICS_LENGTH), genetic_board+(parent_b_ind*GENETICS_LENGTH),
+				genetic_board+(j*GENETICS_LENGTH), genetic_board+(next_non_parent*GENETICS_LENGTH), GENETICS_LENGTH);
+
+			mutation(genetic_board+(j*GENETICS_LENGTH), GENETICS_LENGTH, MUTATION_CHANCE);
+			mutation(genetic_board+(next_non_parent*GENETICS_LENGTH), GENETICS_LENGTH, MUTATION_CHANCE);
+		}
+
+		for (int i = 0; i < GENETICS_AMOUNT; i++) {
+			genetic_quality[i] = test_out_mutation(genetic_board+CURRENT_GENETIC_ROW, GENETICS_LENGTH, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
+		}
+		printf("a");
 	}
-	printf("]}");
+
+	int pa[5] = {1,2,3,4,5};
+	int pb[5] = {5,4,3,2,1};
+	int ca[5];
+	int cb[5];
+
+	crossover(pa, pb, ca, cb, 5);
+	mutation(ca, 5, 0.1);
+	mutation(cb, 5, 0.1);
+
+	exit(1);
 
 }

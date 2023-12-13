@@ -113,7 +113,7 @@ void greedy(
 						choice_indexes[j] = tmpind;
 					}
 				}
-			} 
+			}
 
 			int index_to_use = choice_indexes[0];
 			if (randomized) {

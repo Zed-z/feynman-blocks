@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
 			int *block_queue = (int*)malloc(sizeof(int) * fblock_list_length);
 			for (int i = 0; i < fblock_list_length; i++) block_queue[i] = i;
 
+			// Shuffle
 			for (int i = 0; i < fblock_list_length - 1; i++) {
 				int j = i + rand() / (RAND_MAX / (fblock_list_length - i) + 1);
 				int tmp = block_queue[i];
