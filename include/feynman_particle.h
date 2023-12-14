@@ -4,7 +4,7 @@
 
 
 #define MAX_FPART_AMOUNT 256
-#define MAX_FPART_TYPE_AMOUNT 10
+#define MAX_FPART_TYPE_AMOUNT 128
 
 extern char* fparticle_types[MAX_FPART_TYPE_AMOUNT];
 extern int fparticle_types_length;

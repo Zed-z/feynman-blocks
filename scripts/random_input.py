@@ -19,7 +19,7 @@ max_io = 4
 fpart_amounts_chosen = random.choices(range(fpart_types), k=fpart_amount)
 fblock_amounts_chosen = random.choices(range(fblock_types), k=fblock_amount)
 
-fparts = random.sample(["e-", "e+", "q", "¬q", "g", "p", "¬p", "νμ", "α", "β", "γ"], k=fpart_types)
+fparts = random.sample(["e-", "e+", "q", "¬q", "g", "p", "¬p", "νμ", "α", "β", "γ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Q", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"], k=fpart_types)
 
 
 data = dict()

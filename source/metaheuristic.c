@@ -71,7 +71,7 @@ float test_out_mutation(
 			print_fblock(fblock_list[queued], fparticle_types);
 		}
 
-		if (use_fblock(fpart_list_copy, &fpart_list_length_copy, &(fblock_list[queued]), 0, 0, 0) == 0) {
+		if (use_fblock(fpart_list_copy, &fpart_list_length_copy, &(fblock_list[queued]), 0, 1, 0) == 0) {
 			if (LOG) printf("Success!\n");
 			if (LOG) print_fpart_all(fpart_list_copy, fpart_list_length_copy);
 		} else {
@@ -82,6 +82,15 @@ float test_out_mutation(
 	return check_solution_float(fpart_list_copy, fpart_list_length, desired_output, desired_output_length);
 }
 
+void print_genetic_board(int *genetic_board, float *genetic_quality, int height, int width) {
+	printf("board ----------------------------\n");
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			printf("%d\t ", genetic_board[i*width+j]);
+		}
+		printf("| %f\n", genetic_quality[i]);
+	}
+}
 
 void metaheuristic(
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
@@ -92,7 +101,7 @@ void metaheuristic(
 	#define GENETICS_AMOUNT 10
 	#define GENETICS_LENGTH fblock_list_length
 	#define EVOLUTIONS 5
-	#define MUTATION_CHANCE 0.25
+	#define MUTATION_CHANCE 0.5
 
 	// Define structures for storing information
 	int *genetic_board = (int*)malloc(sizeof(int)*GENETICS_LENGTH*GENETICS_AMOUNT);
@@ -116,7 +125,7 @@ void metaheuristic(
 		// Set quality
 		genetic_quality[i] = test_out_mutation(genetic_board+CURRENT_GENETIC_ROW, GENETICS_LENGTH, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
 	}
-	printf("a");
+	print_genetic_board(genetic_board, genetic_quality, GENETICS_AMOUNT, GENETICS_LENGTH);
 
 	for (int evo = 0; evo < EVOLUTIONS; evo++) {
 
@@ -132,7 +141,7 @@ void metaheuristic(
 				max_val_2 = max_val;
 				max_ind = j;
 				max_val = genetic_quality[j];
-			} else if (genetic_quality[j] > max_val_2 && genetic_quality[j] < max_val) {
+			} else if (genetic_quality[j] > max_val_2 && genetic_quality[j] <= max_val) {
 				max_ind_2 = j;
 				max_val_2 = genetic_quality[j];
 			}
@@ -141,6 +150,8 @@ void metaheuristic(
 		// Parents
 		int parent_a_ind = max_ind;
 		int parent_b_ind = max_ind_2;
+
+		printf("PARENTS CHOSEN AT INDEXES %d, %d\n", parent_a_ind, parent_b_ind);
 
 		// Crossover and mutate non-parent indexes
 		for (int j = 0; j < GENETICS_AMOUNT; j++) {
@@ -158,14 +169,17 @@ void metaheuristic(
 			crossover(genetic_board+(parent_a_ind*GENETICS_LENGTH), genetic_board+(parent_b_ind*GENETICS_LENGTH),
 				genetic_board+(j*GENETICS_LENGTH), genetic_board+(next_non_parent*GENETICS_LENGTH), GENETICS_LENGTH);
 
+			//printf("AAAAAAAAAAAAAAA\n");print_genetic_board(genetic_board, genetic_quality, GENETICS_AMOUNT, GENETICS_LENGTH);
 			mutation(genetic_board+(j*GENETICS_LENGTH), GENETICS_LENGTH, MUTATION_CHANCE);
 			mutation(genetic_board+(next_non_parent*GENETICS_LENGTH), GENETICS_LENGTH, MUTATION_CHANCE);
+			//print_genetic_board(genetic_board, genetic_quality, GENETICS_AMOUNT, GENETICS_LENGTH);
 		}
 
 		for (int i = 0; i < GENETICS_AMOUNT; i++) {
-			genetic_quality[i] = test_out_mutation(genetic_board+CURRENT_GENETIC_ROW, GENETICS_LENGTH, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length);
+			genetic_quality[i] = test_out_mutation(genetic_board+CURRENT_GENETIC_ROW, GENETICS_LENGTH, fblock_list, fblock_list_length, fpart_list, fpart_list_length, desired_output, desired_output_length) + (i == parent_a_ind || i == parent_b_ind ? -0.1 : 0);//Discourage repeated use of parents
 		}
-		printf("a");
+		
+		print_genetic_board(genetic_board, genetic_quality, GENETICS_AMOUNT, GENETICS_LENGTH);
 	}
 
 	int pa[5] = {1,2,3,4,5};

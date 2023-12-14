@@ -38,7 +38,7 @@ int target_output_length;
 int main(int argc, char *argv[]) {
 
 	// Read pipe if available
-	#define READ_MAX 1024
+	#define READ_MAX 65535
 	int chars_read_count = 0;
 	char chars_read[READ_MAX];
 
