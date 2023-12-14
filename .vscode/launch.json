@@ -6,7 +6,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${workspaceFolder}/main.exe",
-			"args": ["examples/example_metaheuristic4.json"],
+			"args": ["examples/example_metaheuristic.json"],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
 			"environment": [],
