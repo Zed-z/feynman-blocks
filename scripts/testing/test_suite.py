@@ -22,7 +22,14 @@ def get_desired_output(args):
 	fparts_initial = [fp[0] for fp in json.loads(out1)["particles"]]
 	if log: print(fparts_initial)
 
-	fparts = json.loads(out3random)["fparts"]
+	try:
+		fparts = json.loads(out3random)["fparts"]
+	except:
+		print("Error preparing output")
+		print(out3random)
+		print(err3)
+		return -1, -1
+
 	fparts = [fp["name"] for fp in fparts if fp["deleted"] == 0]
 	fparts_counter = collections.Counter(fparts)
 	if log: print(fparts_counter)
@@ -34,8 +41,8 @@ def get_desired_output(args):
 
 
 results = []
-repeats = 2
-args = [str(x) for x in [6, 4, 10, 12]]
+repeats = 4
+#args = [str(x) for x in [10, 10, 12, 12]]
 
 test_types = ["scripts/test_brute.py", "scripts/test_greedy.py", "scripts/test_greedy_randomized.py", "scripts/test_metaheuristic.py"]
 
@@ -44,14 +51,20 @@ final_results = []
 for test in test_types:
 	print(test)
 
-	for fpart_amount in range(4, 12+1, 2):
-		for fblock_amount in range(4, 12+1, 2):
-			args = [str(x) for x in [6, 4, fpart_amount, fblock_amount]]
+	for fpart_amount in range(52, 100+1, 2):
+		for fblock_amount in range(52, 100+1, 2):
+			if test == "scripts/test_brute.py" and fblock_amount > 12:
+				continue
+
+			args = [str(x) for x in [10, 10, fpart_amount, fblock_amount]]
+			print(args)
 			results = []
 
 			for i in range(repeats):
 
 				input, desired_output = get_desired_output(args)
+				if input == -1 and desired_output == -1:
+					continue
 
 				# Prepare test
 				test_data = subprocess.Popen(["python", test, *desired_output], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
