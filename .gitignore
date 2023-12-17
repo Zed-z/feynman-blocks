@@ -1,2 +1,3 @@
 /*.exe
 tests/*
+scripts/testing/test_results.json

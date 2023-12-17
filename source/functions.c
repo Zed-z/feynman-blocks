@@ -7,7 +7,7 @@
 #include "../include/feynman_particle.h"
 #include "../include/functions.h"
 
-
+// O(p)
 int use_fblock(struct FPart *fpart_list, int *fpart_list_length, struct FBlock *fblock, int log, int infinite_uses, int dry_run) {
 	// 
 	// Returns 0 if success, 2 if input not fullfilled, 3 if already used
@@ -121,17 +121,19 @@ int use_fblock(struct FPart *fpart_list, int *fpart_list_length, struct FBlock *
 
 }
 
+// O(p)
 void print_fpart_all(struct FPart *fpart_list, int fpart_list_length) {
 	printf("Total Particles: %d\n", fpart_list_length);
 	for (int i = 0; i < fpart_list_length; i++) print_fpart(fpart_list[i]);
 }
+// O(b)
 void print_fblock_all(struct FBlock *fblock_list, int fblock_list_length, char **fparticle_types) {
 	printf("Total Blocks: %d\n", fblock_list_length);
 	for (int i = 0; i < fblock_list_length; i++) print_fblock(fblock_list[i], fparticle_types);
 }
 
 
-
+// O(p)
 int check_solution_bool(
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
 	int desired_output[MAX_FPART_AMOUNT], int desired_output_length
@@ -163,6 +165,8 @@ int check_solution_bool(
 	return 1;
 }
 
+
+// O(p)
 float check_solution_float(
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
 	int desired_output[MAX_FPART_AMOUNT], int desired_output_length

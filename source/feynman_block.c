@@ -6,6 +6,7 @@
 const char* fblock_types[MAX_FBLOCK_TYPE_AMOUNT] = {0};
 int fblock_type_iter = 0;
 
+// O(1)
 void print_fblock(struct FBlock fblock, char* fpart_types[]) {
 	printf("<FBlock %d> %s ", fblock.id, fblock_types[fblock.type]);
 
@@ -43,6 +44,7 @@ void print_fblock(struct FBlock fblock, char* fpart_types[]) {
 
 }
 
+// O(1)
 void print_fblock_json(struct FBlock fblock) {
 	printf("{\"id\": %d, \"name\": \"%s\", \"input\": [", fblock.id, fblock_types[fblock.type]);
 	if (fblock.used_count > 0) {
@@ -61,6 +63,7 @@ void print_fblock_json(struct FBlock fblock) {
 	printf("]}");
 }
 
+// O(1)
 struct FBlock new_FBlock(int type, int input[FBLOCK_MAX_INPUT], int output[FBLOCK_MAX_OUTPUT]) {
 	static int fblock_id_iter = 0;
 

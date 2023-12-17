@@ -13,33 +13,46 @@
 #include "../include/metaheuristic.h"
 
 
+// O(b)
 void crossover(int *parent_a, int *parent_b, int *child_a, int *child_b, int length) {
 	int crossover_point = length / 2;
 
+	// Prepare extra variables for easier child editing
 	int ind_a = 0;
 	int ind_b = 0;
 
-	for (int i = 0; i < crossover_point; i++) {
-		child_a[ind_a++] = parent_a[i];
-		child_b[ind_b++] = parent_b[i];
-	}
+	int *is_index_in_child_a = (int*)malloc(length * sizeof(int));
+	int *is_index_in_child_b = (int*)malloc(length * sizeof(int));
 
 	for (int i = 0; i < length; i++) {
-
-		int is_in_a = 0;
-		int is_in_b = 0;
-
-		for (int j = 0; j < crossover_point; j++) {
-			if (child_a[j] == parent_b[i]) is_in_a = 1;
-			if (child_b[j] == parent_a[i]) is_in_b = 1;
-			if (is_in_a && is_in_b) break;
-		}
-
-		if (!is_in_a) child_a[ind_a++] = parent_b[i];
-		if (!is_in_b) child_b[ind_b++] = parent_a[i];
+		is_index_in_child_a[i] = 0;
+		is_index_in_child_b[i] = 0;
 	}
+
+	// Add half of one parent to each child
+	for (int i = 0; i < crossover_point; i++) {
+
+		child_a[ind_a++] = parent_a[i];
+		is_index_in_child_a[parent_a[i]] = 1;
+
+		child_b[ind_b++] = parent_b[i];
+		is_index_in_child_b[parent_b[i]] = 1;
+	}
+
+	// Add half of another parent to each child
+	for (int i = 0; i < length; i++) {
+
+		if (!is_index_in_child_a[parent_b[i]]) child_a[ind_a++] = parent_b[i];
+
+		if (!is_index_in_child_b[parent_a[i]]) child_b[ind_b++] = parent_a[i];
+	}
+
+	//Cleanup
+	free(is_index_in_child_a);
+	free(is_index_in_child_b);
 }
 
+// O(b)
 void mutation(int *child, int length, double chance) {
 	for (int i = 0; i < length - 1; i++) {
 		double roll = (double)rand() / (double)RAND_MAX;
@@ -52,6 +65,7 @@ void mutation(int *child, int length, double chance) {
 	}
 }
 
+// O(b*p)
 float test_out_mutation(
 	int *steps, int length,
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
@@ -86,6 +100,7 @@ float test_out_mutation(
 	return check_solution_float(fpart_list_copy, fpart_list_length, desired_output, desired_output_length);
 }
 
+// O(b)
 void print_genetic_board(int *genetic_board, float *genetic_quality, int height, int width) {
 	printf("board ----------------------------\n");
 	for (int i = 0; i < height; i++) {
@@ -96,6 +111,7 @@ void print_genetic_board(int *genetic_board, float *genetic_quality, int height,
 	}
 }
 
+// O(b*p)
 void metaheuristic(
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,

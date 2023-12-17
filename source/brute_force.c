@@ -10,6 +10,7 @@
 #include "../include/timer.h"
 
 // 1 is a match, 0 is no match
+// O(b*p)
 int usepermutation(
 	int *steps, int stepsize,
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
@@ -67,6 +68,7 @@ int usepermutation(
 }
 
 
+// O(1)
 void swap(int *a, int *b) {
 	int temp;
 	temp = *a;

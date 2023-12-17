@@ -13,6 +13,26 @@
 #include "../include/greedy.h"
 
 
+// O(n)
+void find_top_3_indexes(int arr[], int size, int *max1, int *max2, int *max3) {
+    *max1 = *max2 = *max3 = -1;
+
+    for (int i = 0; i < size; ++i) {
+        if (*max1 == -1 || arr[i] > arr[*max1] || (arr[i] == arr[*max1] && i < *max1)) {
+            *max3 = *max2;
+            *max2 = *max1;
+            *max1 = i;
+        } else if (*max2 == -1 || arr[i] > arr[*max2] || (arr[i] == arr[*max2] && i < *max2)) {
+            *max3 = *max2;
+            *max2 = i;
+        } else if (*max3 == -1 || arr[i] > arr[*max3] || (arr[i] == arr[*max3] && i < *max3)) {
+            *max3 = i;
+        }
+    }
+}
+
+
+// O(b^2) or O(b*p)
 void greedy(
 	struct FBlock fblock_list[MAX_FBLOCK_AMOUNT], int fblock_list_length,
 	struct FPart fpart_list[MAX_FPART_AMOUNT], int fpart_list_length,
@@ -30,7 +50,7 @@ void greedy(
 
 	// Calculate quality
 	int valid_choices;
-	do {
+	do { // Worst case scenario, this runs b times
 
 		valid_choices = 0;
 
@@ -98,29 +118,19 @@ void greedy(
 		// Use highest quality block
 		if (valid_choices > 0) {
 
-			int *choice_indexes = (int*)malloc(sizeof(int) * fblock_list_length);
-			for (int i = 0; i < fblock_list_length; i++) choice_indexes[i] = i;
+			int max1; int max2; int max3;
+			find_top_3_indexes(choice_quality, fblock_list_length, &max1, &max2, &max3);
 
-			for (int i = 0; i < fblock_list_length; i++) {
-				for (int j = 0; j < fblock_list_length; j++) {
-					if (choice_quality[i] > choice_quality[j]) {
-						int tmp = choice_quality[i];
-						choice_quality[i] = choice_quality[j];
-						choice_quality[j] = tmp;
-
-						int tmpind = choice_indexes[i];
-						choice_indexes[i] = choice_indexes[j];
-						choice_indexes[j] = tmpind;
-					}
-				}
-			}
-
-			int index_to_use = choice_indexes[0];
+			int index_to_use;
 			if (randomized) {
-				index_to_use = choice_indexes[min(rand() % 3, valid_choices-1)];
+				switch (min(rand() % 3, valid_choices-1)) {
+					case 0: index_to_use = max1; break;
+					case 1: index_to_use = max2; break;
+					case 2: index_to_use = max3; break;
+				}
+			} else {
+				index_to_use = max1;
 			}
-
-			free(choice_indexes);
 
 			if (LOG) {
 				printf("Using block: ");

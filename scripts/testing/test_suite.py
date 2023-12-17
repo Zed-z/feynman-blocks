@@ -16,7 +16,7 @@ def get_desired_output(args):
 	test_data = subprocess.Popen(["python", "scripts/test_random.py"], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	out2, err2 = test_data.communicate(input=out1)
 
-	output = subprocess.Popen([os.path.join(os.path.dirname(__file__))+"/../main.exe"], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+	output = subprocess.Popen(["main.exe"], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	out3random, err3 = output.communicate(input=out2)
 
 	fparts_initial = [fp[0] for fp in json.loads(out1)["particles"]]
@@ -42,6 +42,8 @@ test_types = ["scripts/test_brute.py", "scripts/test_greedy.py", "scripts/test_g
 final_results = []
 
 for test in test_types:
+	print(test)
+
 	for fpart_amount in range(4, 12+1, 2):
 		for fblock_amount in range(4, 12+1, 2):
 			args = [str(x) for x in [6, 4, fpart_amount, fblock_amount]]
@@ -51,29 +53,32 @@ for test in test_types:
 
 				input, desired_output = get_desired_output(args)
 
-				# Run brute force
+				# Prepare test
 				test_data = subprocess.Popen(["python", test, *desired_output], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 				test_data, _ = test_data.communicate(input=input)
 				if log: print(test_data)
 
-				output = subprocess.Popen([os.path.join(os.path.dirname(__file__))+"/../main.exe"], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+				# Run program
+				output = subprocess.Popen(["main.exe"], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 				test_results, _ = output.communicate(input=test_data)
 				if log: print(test_results)
 
 				try:
 					js = json.loads(test_results)
 				except:
-					print("Error with data:", test_results)
+					print("Error with data:", test_results, "context:", test, args)
 					continue
 
 				results.append({ "success": js["success"], "time": js["time"] }) # Only what's needed
 
-			print("--------------------------------------------------")
-			print(test, args)
-			print(results)
-			final_results.append((test, args, results))
-			print("Average time:", statistics.mean([r["time"] for r in results]), "deviation", statistics.stdev([r["time"] for r in results]))
-			print("Success rate:", statistics.mean([r["success"] for r in results]), "deviation", statistics.stdev([r["success"] for r in results]))
-			print("--------------------------------------------------")
+			final_results.append({ "type": test, "fpart_amount": fpart_amount, "fblock_amount": fblock_amount, "results": results})
+			if log:
+				print("--------------------------------------------------")
+				print(test, args)
+				print(results)
+				print("Average time:", statistics.mean([r["time"] for r in results]), "deviation", statistics.stdev([r["time"] for r in results]))
+				print("Success rate:", statistics.mean([r["success"] for r in results]), "deviation", statistics.stdev([r["success"] for r in results]))
+				print("--------------------------------------------------")
 
-print(final_results)
+with open("scripts/testing/test_results.json", "w") as f:
+	f.write(json.dumps({ "results": final_results }))
