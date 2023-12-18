@@ -24,9 +24,6 @@ int fpart_list_length = 0;
 struct FBlock fblock_list[MAX_FBLOCK_AMOUNT];
 int fblock_list_length = 0;
 
-void swap(int *a, int *b);
-void permutation(int *arr, int arrlen, int start, int end);
-
 #define MAX_PROCESSES 100
 struct FBlock *process_list[MAX_PROCESSES];
 int process_id = 0;
