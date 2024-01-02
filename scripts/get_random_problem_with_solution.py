@@ -24,5 +24,7 @@ fparts_counter = collections.Counter(fparts)
 
 desired_output = [fparts_counter[fp] if fp in fparts_counter else 0 for fp in fparts_initial]
 
-print(out2)
-print(desired_output)
+problem = json.loads(str(out2)[2:-5])
+problem["test_data"] = desired_output
+
+print(json.dumps(problem))

@@ -41,3 +41,6 @@ Visualization example (GraphViz):
 ```
 cat examples/example.json | python3 scripts/test_greedy_randomized.py 2 2 6 | tee tests/input.json | ./main.exe | tee tests/output.json | python3 scripts/json_to_graphviz.py | tee tests/viz.dot | dot -Tpng > tests/viz.png
 ```
+```
+python scripts/get_random_problem_with_solution.py | python scripts/test_brute.py | tee tests/input.json | ./main.exe | tee tests/output.json | python3 scripts/json_to_graphviz.py | tee tests/viz.dot | dot -Tpng > tests/viz.png
+```
